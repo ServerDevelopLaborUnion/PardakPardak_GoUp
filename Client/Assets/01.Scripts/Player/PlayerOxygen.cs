@@ -1,28 +1,48 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerOxygen : MonoBehaviour
 {
-    [field: SerializeField, Range(0f, 60f)]
-    public float CurrentOxygen { get; set; } = 60f;
+    // [field: SerializeField, Range(0f, 60f)]
+    // public float CurrentOxygen { get; set; } = 60f;
+    [SerializeField] float _maxOxygen = 60f;
+    private float currentOxygen = 0f;
+    public float CurrentOxygen {
+        get => currentOxygen;
+        set {
+            currentOxygen = value;
+            playerJump.JumpPower = currentOxygen / _maxOxygen * playerJump.DefaultJumpPower;
+        }
+    }
+
     [field: SerializeField] public bool InWater { get; set; } = false;
 
+    [Header("Oxygen Control")]
     [SerializeField] private float _decreasePerSecond = 1f;
+    [SerializeField] private float _increasePerSecond = 1f;
+    [SerializeField] private float _decreaseDelay = 0.5f;
+
+    private PlayerJump playerJump = null;
+
+    private void Awake()
+    {
+        playerJump = GetComponent<PlayerJump>();
+    }
 
     private void Start()
     {
         StartCoroutine(DecreaseOxygen());
+        currentOxygen = _maxOxygen;
     }
 
     private IEnumerator DecreaseOxygen()
     {
-        while(CurrentOxygen > 0)
+        while(true)
         {
-            if(!InWater)
-            CurrentOxygen -= _decreasePerSecond;
-            yield return new WaitForSeconds(1);
+            CurrentOxygen += InWater ? _increasePerSecond : -_decreasePerSecond;
+            CurrentOxygen = Mathf.Min(CurrentOxygen, _maxOxygen);
+
+            yield return new WaitForSeconds(_decreaseDelay);
         }
     }
 
