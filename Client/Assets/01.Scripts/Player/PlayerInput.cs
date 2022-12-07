@@ -6,11 +6,17 @@ public class PlayerInput : MonoBehaviour
 {
     [SerializeField] int maxJumpCount = 3;
     private int _currentJumpCount = 0;
+    private Camera inputCamera = null;
 
     [Space(10f)]
     public UnityEvent<Vector3> OnJumpInput;
 
     public UnityEvent<Vector3> DefaultJump;
+
+    private void Awake()
+    {
+        inputCamera = MainCam.transform.GetChild(0).GetComponent<Camera>();
+    }
 
     private void Update()
     {
@@ -25,7 +31,7 @@ public class PlayerInput : MonoBehaviour
                 return;
 
             _currentJumpCount++;
-            Vector3 mousePos = MainCam.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 mousePos = inputCamera.ScreenToWorldPoint(Input.mousePosition);
             mousePos.z = 0;
             // Debug.Log("Jump Input");
             OnJumpInput?.Invoke(mousePos);
