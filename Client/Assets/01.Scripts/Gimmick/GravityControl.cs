@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using UnityEngine;
 
-public class GravityControll : MonoBehaviour
+public class GravityControl : MonoBehaviour
 {
     [SerializeField] float divisor = 2f;
 
