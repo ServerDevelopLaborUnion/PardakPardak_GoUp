@@ -31,6 +31,12 @@ public class PlayerJump : MonoBehaviour
     //     );
     // }
 
+    public void DefaultJump(Vector3 dir)
+    {
+        _rigid.velocity = Vector3.zero;
+        _rigid.AddForce(dir.normalized * JumpPower, ForceMode.Impulse);
+    }
+
     public void CommonJump(Vector3 mousePos)
     {
         // if(mousePos.y >= transform.position.y) return;
