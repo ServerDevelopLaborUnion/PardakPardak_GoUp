@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 23000012634068266}
   - component: {fileID: 64000013640084084}
   m_Layer: 0
-  m_Name: ATM_Gray
+  m_Name: "\uD3EC\uC2A4\uAE30"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e5c9b732aeebe2341b455d5034f745b3, type: 2}
+  - {fileID: 2100000, guid: 517f23f9e28d64e4184bc5491318b900, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
