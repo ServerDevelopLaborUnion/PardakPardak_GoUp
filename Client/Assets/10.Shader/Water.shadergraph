@@ -134,7 +134,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "009c80c9cd7547ad8ae8aa35aa6631dd",
     "m_Id": 0,
-    "m_DisplayName": "Float",
+    "m_DisplayName": "Alpha",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -180,10 +180,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -216.52171325683595,
-            "y": 256.5217590332031,
-            "width": 0.0,
-            "height": 0.0
+            "x": -218.0,
+            "y": 257.0,
+            "width": 101.0,
+            "height": 34.0
         }
     },
     "m_Slots": [
@@ -613,10 +613,10 @@
     "m_Guid": {
         "m_GuidSerialized": "ee4d55d0-0160-4350-94bb-0c3e4ad6373c"
     },
-    "m_Name": "Float",
+    "m_Name": "Alpha",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "Float",
-    "m_DefaultReferenceName": "_Float",
+    "m_RefNameGeneratedByDisplayName": "Alpha",
+    "m_DefaultReferenceName": "_Alpha",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
@@ -626,7 +626,7 @@
     "hlslDeclarationOverride": 0,
     "m_Hidden": false,
     "m_Value": 0.550000011920929,
-    "m_FloatType": 0,
+    "m_FloatType": 1,
     "m_RangeValues": {
         "x": 0.0,
         "y": 1.0
