@@ -8,9 +8,9 @@ using com.zibra.liquid.Solver;
 
 namespace com.zibra.liquid
 {
-    public class LiquidHDRPRenderComponent : CustomPassVolume
+    internal class LiquidHDRPRenderComponent : CustomPassVolume
     {
-        public class FluidHDRPRender : CustomPass
+        internal class FluidHDRPRender : CustomPass
         {
             public ZibraLiquid liquid;
             RTHandle Depth;
@@ -59,14 +59,26 @@ namespace com.zibra.liquid
                     // copy screen to background
                     if (liquid.IsBackgroundCopyNeeded(hdCamera.camera))
                     {
-                        cmd.Blit(cameraColor, liquid.cameraResources[hdCamera.camera].background,
-                                 new Vector2(scale, scale), Vector2.zero, 0, 0);
+                        Vector2 colorBlitScale = new Vector2(scale / cameraColor.rt.width * hdCamera.actualWidth, 
+                            scale / cameraColor.rt.height * hdCamera.actualHeight);
+                        cmd.Blit(cameraColor, liquid.CameraResourcesMap[hdCamera.camera].Background,
+                                 colorBlitScale, Vector2.zero, 0, 0);
                     }
                     // blit depth to temp RT
                     HDUtils.BlitCameraTexture(cmd, cameraDepth, Depth);
-                    cmd.Blit(Depth, depth, new Vector2(scale, scale), Vector2.zero, 1, 0);
+                    Vector2 depthBlitScale = new Vector2(scale / cameraDepth.rt.width * hdCamera.actualWidth, 
+                        scale / cameraDepth.rt.height * hdCamera.actualHeight);
+                    cmd.Blit(Depth, depth, depthBlitScale, Vector2.zero, 1, 0);
 
                     Rect viewport = new Rect(0, 0, hdCamera.actualWidth, hdCamera.actualHeight);
+
+                    if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan)
+                    {
+                        cmd.SetRenderTarget(liquid.Color0, RenderBufferLoadAction.DontCare,
+                                            RenderBufferStoreAction.Store, liquid.Depth,
+                                            RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+                        cmd.ClearRenderTarget(true, true, Color.clear);
+                    }
 
                     liquid.RenderLiquidNative(cmd, hdCamera.camera, viewport);
 

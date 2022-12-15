@@ -10,10 +10,17 @@ using UnityEditor;
 
 namespace com.zibra.liquid.Manipulators
 {
+    /// <summary>
+    ///     Manipulator used for applying force to liquid particles.
+    /// </summary>
     [AddComponentMenu("Zibra/Zibra Liquid Force Field")]
-    // Multiple components of this type are allowed
+    [DisallowMultipleComponent]
     public class ZibraLiquidForceField : Manipulator
     {
+#region Public Interface
+        /// <summary>
+        ///     See <see cref="Type"/>.
+        /// </summary>
         public enum ForceFieldType
         {
             Radial,
@@ -23,48 +30,111 @@ namespace com.zibra.liquid.Manipulators
 #endif
         }
 
+        /// <summary>
+        ///     Type of force field, which defines how force will be applied.
+        /// </summary>
+        /// <remarks>
+        ///     Direcational and Swirl types are unavailable in Free version.
+        /// </remarks>
+#if !ZIBRA_LIQUID_PAID_VERSION
+        [HideInInspector]
+#endif
+        [Tooltip("Type of force field, which defines how force will be applied")]
+        public ForceFieldType Type = ForceFieldType.Radial;
+
+        /// <summary>
+        ///     Strength multiplier for force applied to liquid.
+        /// </summary>
+        [Tooltip("Strength multiplier for force applied to liquid")]
+        [Range(-4.0f, 4.0f)]
+        public float Strength = 1.0f;
+
+        /// <summary>
+        ///     Rate of force decreasing with distance.
+        /// </summary>
+        /// <remarks>
+        ///     To affect liquid independently of distance,
+        ///     set to lowest value.
+        /// </remarks>
+        [Tooltip("Rate of force decreasing with distance")]
+        [Range(0.01f, 10.0f)]
+        public float DistanceDecay = 1.0f;
+
+        /// <summary>
+        ///     Distance offset for calculations of <see cref="DistanceDecay"/> and <see cref="DisableForceInside"/>.
+        /// </summary>
+        [Tooltip("Distance offset for calculations of DistanceDecay and DisableForceInside")]
+        [Range(-10.0f, 10.0f)]
+        public float DistanceOffset = 0.0f;
+
+        /// <summary>
+        ///     Disables applying force to particle if it's inside force field shape.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         This may help when trying to make force liquid into specific shape.
+        ///     </para>
+        ///     <para>
+        ///         Force disabling doesn't have hard cutoff,
+        ///         but rather it gradually decreases force to 0 near edge of the shape.
+        ///     </para>
+        /// </remarks>
+        [Tooltip("Disables applying force to particle if it's inside force field shape")]
+        public bool DisableForceInside = true;
+
+        /// <summary>
+        ///     Direction for the force. Behaviour depends on <see cref="Type"/>.
+        /// </summary>
+        /// <remarks>
+        ///     Direction is used as follows, depending on <see cref="Type"/>:
+        ///     * Radial - Unused
+        ///     * Directional - Liquid is pushed into specified direction
+        ///     * Swirl - Liquid is rotated along specified axis. To reverse rotation, invert direction
+        /// </remarks>
+        [Tooltip("Direction for the force. Behaviour depends on Type parameter.")]
+        public Vector3 ForceDirection = Vector3.up;
+
+        public override ManipulatorType GetManipulatorType()
+        {
+            return ManipulatorType.ForceField;
+        }
+
+#if UNITY_EDITOR
+        public override Color GetGizmosColor()
+        {
+            return new Color(1.0f, 0.55f, 0.0f);
+        }
+#endif
+
+#endregion
+#region Deprecated
+        /// @cond SHOW_DEPRECATED
+
+        /// @deprecated
+        /// Only used for backwards compatibility
         public enum ForceFieldShape
         {
             Sphere,
             Cube
         }
 
-        public const float STRENGTH_DRAW_THRESHOLD = 0.001f;
-
-#if !ZIBRA_LIQUID_PAID_VERSION
-        [HideInInspector]
-#endif
-        public ForceFieldType Type = ForceFieldType.Radial;
-
+        /// @deprecated
+        /// Only used for backwards compatibility
         [HideInInspector]
         [Obsolete("Shape is deprecated. Add a SDF component instead.", true)]
         public ForceFieldShape Shape = ForceFieldShape.Sphere;
 
+        /// @deprecated
+        /// Only used for backwards compatibility
         [SerializeField]
         [HideInInspector]
         [FormerlySerializedAs("Shape")]
         private ForceFieldShape ShapeOld = ForceFieldShape.Sphere;
 
-        [Tooltip("The strength of the force acting on the liquid")]
-        [Range(-1.0f, 4.0f)]
-        public float Strength = 1.0f;
-        [Tooltip("How fast does the force lose its strength with distance to the center")]
-        [Range(0.01f, 10.0f)]
-        public float DistanceDecay = 1.0f;
-        [Tooltip("Distance where force field activates")]
-        [Range(-10.0f, 10.0f)]
-        public float DistanceOffset = 0.0f;
-
-        [Tooltip("Disable applying forces inside the object")]
-        public bool DisableForceInside = true;
-
-        [Tooltip("Force vector of the directional force field")]
-        public Vector3 ForceDirection = Vector3.up;
-
-        override public ManipulatorType GetManipulatorType()
-        {
-            return ManipulatorType.ForceField;
-        }
+/// @endcond
+#endregion
+#region Implementation details
+        private const float STRENGTH_DRAW_THRESHOLD = 0.001f;
 
         private void Update()
         {
@@ -84,7 +154,7 @@ namespace com.zibra.liquid.Manipulators
         private int ObjectVersion = 1;
 
         [ExecuteInEditMode]
-        public void Awake()
+        private void Awake()
         {
 #if UNITY_EDITOR
             bool updated = false;
@@ -98,11 +168,11 @@ namespace com.zibra.liquid.Manipulators
                     switch (ShapeOld)
                     {
                     case ForceFieldShape.Cube:
-                        sdf.chosenSDFType = SDFObject.SDFType.Box;
+                        sdf.ChosenSDFType = AnalyticSDF.SDFType.Box;
                         break;
                     case ForceFieldShape.Sphere:
                     default:
-                        sdf.chosenSDFType = SDFObject.SDFType.Sphere;
+                        sdf.ChosenSDFType = AnalyticSDF.SDFType.Sphere;
                         break;
                     }
 #if UNITY_EDITOR
@@ -123,63 +193,52 @@ namespace com.zibra.liquid.Manipulators
         }
 
 #if UNITY_EDITOR
-        override public Color GetGizmosColor()
-        {
-            return new Color(1.0f, 0.55f, 0.0f);
-        }
-
-        void OnSceneOpened(Scene scene, UnityEditor.SceneManagement.OpenSceneMode mode)
+        private void OnSceneOpened(Scene scene, UnityEditor.SceneManagement.OpenSceneMode mode)
         {
             Debug.Log("Zibra Liquid Force Field format was updated. Please resave scene.");
             UnityEditor.EditorUtility.SetDirty(gameObject);
+            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
         }
 
-        void Reset()
+        private void Reset()
         {
-            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
             ObjectVersion = 2;
-        }
-
-        // clang-format doesn't parse code with new keyword properly
-        // clang-format off
-
-        public new void OnDestroy()
-        {
-            base.OnDestroy();
             UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
         }
-        void OnDrawGizmosSelected()
+
+        private void OnDrawGizmosSelected()
         {
             if (!enabled)
             {
                 return;
             }
 
-            Gizmos.matrix = GetTransform();
+            Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.color = Handles.color = GetGizmosColor();
 
             if (Math.Abs(Strength) < STRENGTH_DRAW_THRESHOLD)
                 return;
             switch (Type)
             {
-                case ForceFieldType.Radial:
-                    Utilities.GizmosHelper.DrawArrowsSphereRadial(Vector3.zero, Strength, 32);
-                    break;
+            case ForceFieldType.Radial:
+                Utilities.GizmosHelper.DrawArrowsSphereRadial(Vector3.zero, Strength, 32);
+                break;
 #if ZIBRA_LIQUID_PAID_VERSION
-                case ForceFieldType.Directional:
-                    Utilities.GizmosHelper.DrawArrowsSphereDirectional(Vector3.zero, Vector3.right * Strength, 32);
-                    break;
-                case ForceFieldType.Swirl:
-                    Utilities.GizmosHelper.DrawArrowsSphereTangent(Vector3.zero, ForceDirection * Strength, 32);
-                    break;
+            case ForceFieldType.Directional:
+                Utilities.GizmosHelper.DrawArrowsSphereDirectional(Vector3.zero, Vector3.right * Strength, 32);
+                break;
+            case ForceFieldType.Swirl:
+                Utilities.GizmosHelper.DrawArrowsSphereTangent(Vector3.zero, ForceDirection * Strength, 32);
+                break;
 #endif
             }
         }
 
-        void OnDrawGizmos()
+        private void OnDrawGizmos()
         {
             OnDrawGizmosSelected();
         }
 #endif
+#endregion
     }
 }

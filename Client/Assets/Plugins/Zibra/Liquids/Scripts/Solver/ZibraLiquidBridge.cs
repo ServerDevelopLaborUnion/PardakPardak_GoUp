@@ -1,14 +1,12 @@
 using System;
 using System.Runtime.InteropServices;
-using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 
 namespace com.zibra.liquid.Solver
 {
-    public static class ZibraLiquidBridge
+    internal static class ZibraLiquidBridge
     {
-
 #if UNITY_EDITOR
 
 // Editor library selection
@@ -48,14 +46,39 @@ namespace com.zibra.liquid.Solver
         [DllImport(PluginLibraryName)]
         public static extern Int32 GarbageCollect();
 
+#if ZIBRA_LIQUID_PROFILING_ENABLED
+        [DllImport(PluginLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint GetDebugTimestamps(Int32 InstanceID,
+                                                     [In, Out] ZibraLiquid.DebugTimestampItem[] timestampsItems);
+#endif
+
 #if UNITY_EDITOR
 #if ZIBRA_LIQUID_PAID_VERSION
         [DllImport(PluginLibraryName)]
         public static extern Int32 GetCurrentAffineBufferIndex(Int32 InstanceID);
 #endif
 
+#if ZIBRA_LIQUID_PRO_VERSION && !ZIBRA_LIQUID_PRO_VERSION_NO_LICENSE_CHECK
         [DllImport(PluginLibraryName)]
-        public static extern bool IsPaidVersion();
+        public static extern Int32 GetRandomNumber();
+
+        [DllImport(PluginLibraryName)]
+        public static extern void ValidateLicense([MarshalAs(UnmanagedType.LPStr)] string serverResponse,
+                                                  Int32 responseSize);
+
+        [DllImport(PluginLibraryName)]
+        public static extern Int32 IsLicenseValidated();
+#endif
+
+        public enum PluginSKU : int
+        {
+            Free = 0,
+            Full = 1,
+            Pro = 2
+        }
+
+        [DllImport(PluginLibraryName)]
+        public static extern Int32 GetPluginSKU();
 #endif
 
         public enum EventID : int
@@ -84,20 +107,11 @@ namespace com.zibra.liquid.Solver
             RenderSDF = 21,
         }
 
-        public struct EventData
+        internal struct EventData
         {
             public int InstanceID;
             public IntPtr ExtraData;
         };
-
-        public enum LogLevel
-        {
-            Verbose = 0,
-            Info = 1,
-            Performance = 2,
-            Warning = 3,
-            Error = 4,
-        }
 
         public enum TextureFormat
         {
@@ -127,20 +141,6 @@ namespace com.zibra.liquid.Solver
                 return TextureFormat.None;
             }
         }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct DebugMessage
-        {
-            public IntPtr Text;
-            public LogLevel Level;
-        };
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct LoggerSettings
-        {
-            public IntPtr PFNCallback;
-            public LogLevel LogLevel;
-        };
 
         public static int EventAndInstanceID(EventID eventID, int InstanceID)
         {

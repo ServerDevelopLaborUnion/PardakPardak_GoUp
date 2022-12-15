@@ -5,6 +5,7 @@ using UnityEngine;
 using com.zibra.liquid.Utilities;
 using com.zibra.liquid.Manipulators;
 using com.zibra.liquid.DataStructures;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -12,8 +13,81 @@ using UnityEditor;
 
 namespace com.zibra.liquid.SDFObjects
 {
+    /// <summary>
+    ///     Class containing Neural SDF.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Neural SDF is SDF generated from static mesh,
+    ///         and encoded with special neural network for compression.
+    ///         We call that encoded data "Neural Representation".
+    ///     </para>
+    ///     <para>
+    ///         You need to generate Neural SDF before use.
+    ///         That can only be done in editor,
+    ///         so you need to generate all meshes you intend to use with Neural SDF.
+    ///         For generation see <see cref="Editor::SDFObjects::GenerationQueue">GenerationQueue</see>.
+    ///     </para>
+    /// </remarks>
+    [ExecuteInEditMode]
+    [AddComponentMenu("Zibra/Zibra Neural SDF")]
+    [DisallowMultipleComponent]
+    public class NeuralSDF : SDFObject
+    {
+#region Public Interface
+        /// <summary>
+        ///     Cheks whether NeuralSDF was already generated and has neural representation.
+        /// </summary>
+        /// <returns>
+        ///     True if neural representation present, and false otherwise.
+        /// </returns>
+        public bool HasRepresentation()
+        {
+            return ObjectRepresentation != null && ObjectRepresentation.HasRepresentationV3;
+        }
+
+        public override ulong GetVRAMFootprint()
+        {
+            return HasRepresentation() ? NEURAL_SDF_VRAM_FOOTPRINT : 0u;
+        }
+#endregion
+#region Implementation details
+        internal const ulong NEURAL_SDF_VRAM_FOOTPRINT =
+            NeuralSDFRepresentation.BLOCK_EMBEDDING_GRID_DIMENSION *
+                NeuralSDFRepresentation.BLOCK_EMBEDDING_GRID_DIMENSION *
+                NeuralSDFRepresentation.BLOCK_EMBEDDING_GRID_DIMENSION * NeuralSDFRepresentation.PACKING * 4 +
+            NeuralSDFRepresentation.BLOCK_SDF_APPROX_DIMENSION * NeuralSDFRepresentation.BLOCK_SDF_APPROX_DIMENSION *
+                NeuralSDFRepresentation.BLOCK_SDF_APPROX_DIMENSION * 2;
+
+        [SerializeField]
+        [FormerlySerializedAs("objectRepresentation")]
+        internal NeuralSDFRepresentation ObjectRepresentation = new NeuralSDFRepresentation();
+
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            Manipulator manip = GetComponent<Manipulator>();
+
+            if (manip == null || !manip.enabled)
+            {
+                return;
+            }
+
+            Gizmos.color = Handles.color = manip.GetGizmosColor();
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(ObjectRepresentation.BoundingBoxCenter, ObjectRepresentation.BoundingBoxSize);
+        }
+
+        private void OnDrawGizmos()
+        {
+            OnDrawGizmosSelected();
+        }
+#endif
+#endregion
+    }
+
     [Serializable]
-    public class NeuralSDFRepresentation
+    internal class NeuralSDFRepresentation
     {
         // TODO implement variable resolution
         public const int BLOCK_SDF_APPROX_DIMENSION = 32;
@@ -33,12 +107,13 @@ namespace com.zibra.liquid.SDFObjects
 
         public Matrix4x4 ObjectTransform;
 
-        public VoxelRepresentation CurrentRepresentationV3 = new VoxelRepresentation();
+        [SerializeField]
+        internal VoxelRepresentation CurrentRepresentationV3 = new VoxelRepresentation();
         [HideInInspector]
         public bool HasRepresentationV3;
 
         [SerializeField]
-        public VoxelEmbedding VoxelInfo;
+        internal VoxelEmbedding VoxelInfo;
 
         [SerializeField]
         public int EmbeddingResolution;
@@ -47,10 +122,7 @@ namespace com.zibra.liquid.SDFObjects
         public int GridResolution;
 
         [SerializeField]
-        public bool HasHash = false;
-
-        [SerializeField]
-        public ZibraHash128 ObjectHash;
+        internal ZibraHash128 ObjectHash;
 
         public byte GetSDGrid(int i, int j, int k, int t)
         {
@@ -65,15 +137,13 @@ namespace com.zibra.liquid.SDFObjects
             return VoxelInfo.embeds[id];
         }
 
-        public ZibraHash128 GetHash()
+        internal ZibraHash128 GetHash()
         {
-            if (!HasHash)
+            if (ObjectHash is null)
             {
                 ObjectHash = new ZibraHash128();
                 ObjectHash.Init();
                 ObjectHash.Append(VoxelInfo.embeds);
-
-                HasHash = true;
             }
             return ObjectHash;
         }
@@ -124,42 +194,6 @@ namespace com.zibra.liquid.SDFObjects
 
             ObjectTransform = Matrix4x4.Rotate(Rotation) * Matrix4x4.Translate(Translation) * Matrix4x4.Scale(Scale);
         }
-    }
-
-    [ExecuteInEditMode] // Careful! This makes script execute in edit mode.
-    // Use "EditorApplication.isPlaying" for play mode only check.
-    // Encase this check and "using UnityEditor" in "#if UNITY_EDITOR" preprocessor directive to prevent build errors
-    [AddComponentMenu("Zibra/Zibra Neural SDF")]
-    public class NeuralSDF : SDFObject
-    {
-        [SerializeField]
-        public NeuralSDFRepresentation objectRepresentation = new NeuralSDFRepresentation();
-
-        public bool HasRepresentation()
-        {
-            return objectRepresentation != null && objectRepresentation.HasRepresentationV3;
-        }
-
-#if UNITY_EDITOR
-        public void OnDrawGizmosSelected()
-        {
-            Manipulator manip = GetComponent<Manipulator>();
-
-            if (manip == null || !manip.enabled)
-            {
-                return;
-            }
-
-            Gizmos.color = Handles.color = manip.GetGizmosColor();
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawWireCube(objectRepresentation.BoundingBoxCenter, objectRepresentation.BoundingBoxSize);
-        }
-
-        public void OnDrawGizmos()
-        {
-            OnDrawGizmosSelected();
-        }
-#endif
     }
 }
 

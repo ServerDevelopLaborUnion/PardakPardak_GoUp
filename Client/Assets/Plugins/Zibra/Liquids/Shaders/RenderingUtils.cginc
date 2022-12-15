@@ -154,8 +154,8 @@ float3 SampleNormals(float3 pos)
 
 float3 DecodeDirection( uint data )
 {
-    uint2 iv = uint2(data, data >> 16u) & 65535u; float2 v = float2(iv) / 32767.5 - 1.0;
-    
+    float2 v = float2(f16tof32(data >> 16), f16tof32(data)); v = v * 2.0 - 1.0;
+
     float3 nor = float3(v, 1.0 - abs(v.x) - abs(v.y));  // Rune Stubbe's version,
     float t = max(-nor.z,0.0);                          // much faster than original
     nor.x += (nor.x>0.0)?-t:t;                          // implementation of this

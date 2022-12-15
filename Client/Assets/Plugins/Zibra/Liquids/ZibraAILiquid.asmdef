@@ -1,9 +1,7 @@
 {
     "name": "ZibraAILiquid",
-    "rootNamespace": "",
+    "rootNamespace": "com.zibra.liquid",
     "references": [
-        "com.zibra.liquid",
-        "com.zibra.liquid.Editor",
         "Unity.RenderPipelines.HighDefinition.Runtime",
         "Unity.RenderPipelines.Universal.Runtime",
         "Unity.RenderPipelines.Core.Runtime"

@@ -9,14 +9,27 @@ using System.Collections.Generic;
 
 namespace com.zibra.liquid.Utilities
 {
-    public class RenderPipelineDetector
+    /// <summary>
+    ///     Class responsinble for querying data about Render Pipelines.
+    /// </summary>
+    public static class RenderPipelineDetector
     {
+        /// <summary>
+        ///     Type of render pipeline.
+        /// </summary>
         public enum RenderPipeline
         {
-            SRP,
+            BuiltInRP,
             URP,
             HDRP
         }
+
+        /// <summary>
+        ///     Detects which render pipeline is currently used.
+        /// </summary>
+        /// <returns>
+        ///     <see cref="RenderPipeline"/>.
+        /// </returns>
         public static RenderPipeline GetRenderPipelineType()
         {
             if (GraphicsSettings.currentRenderPipeline)
@@ -38,10 +51,21 @@ namespace com.zibra.liquid.Utilities
             }
             else
             {
-                return RenderPipeline.SRP;
+                return RenderPipeline.BuiltInRP;
             }
         }
 
+        /// <summary>
+        ///     Checks whether LiquidURPRenderComponent is missing in URP options.
+        /// </summary>
+        /// <returns>
+        ///     True if current render pipeline is URP, but LiquidURPRenderComponent is missing,
+        ///     and false otherwise.
+        /// </returns>
+        /// <remarks>
+        ///     Please note that you may have differnet URP options for mobile and desktop,
+        ///     but we can only check current options.
+        /// </remarks>
         public static bool IsURPMissingRenderComponent()
         {
 #if UNITY_PIPELINE_URP
@@ -72,6 +96,17 @@ namespace com.zibra.liquid.Utilities
             return false;
         }
 
+        /// <summary>
+        ///     Checks whether depth buffer is not enabled in URP options.
+        /// </summary>
+        /// <returns>
+        ///     True if current render pipeline is URP, but depth buffer is not enabled,
+        ///     and false otherwise.
+        /// </returns>
+        /// <remarks>
+        ///     Please note that you may have differnet URP options for mobile and desktop,
+        ///     but we can only check current options.
+        /// </remarks>
         public static bool IsURPMissingDepthBuffer()
         {
 #if UNITY_PIPELINE_URP

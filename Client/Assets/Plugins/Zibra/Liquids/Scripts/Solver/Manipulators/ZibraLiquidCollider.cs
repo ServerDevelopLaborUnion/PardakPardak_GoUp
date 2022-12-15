@@ -7,52 +7,127 @@ using UnityEngine.Serialization;
 namespace com.zibra.liquid.Manipulators
 {
 #if ZIBRA_LIQUID_PAID_VERSION
+    /// <summary>
+    ///     Data passed to Force Interaction Callback.
+    /// </summary>
     public class ForceInteractionData
     {
+        /// <summary>
+        ///     Force that liquid is about to apply to the object.
+        /// </summary>
         public Vector3 Force;
+        /// <summary>
+        ///     Torque that liquid is about to apply to the object.
+        /// </summary>
         public Vector3 Torque;
     }
 
+    /// <summary>
+    ///     Type for Force Interaction Callback.
+    /// </summary>
+    /// <remarks>
+    ///     Needs to be separate type for compatibility with older Unity versions.
+    /// </remarks>
     [System.Serializable]
-    public class ForceInteractionCallbackType : UnityEvent<ForceInteractionData> { };
+    public class ForceInteractionCallbackType : UnityEvent<ForceInteractionData>
+    {
+    };
 #endif
 
+    /// <summary>
+    ///     Colliders for the liquid.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Must have SDF to define its shape.
+    ///     </para>
+    ///     <para>
+    ///         You can't use Unity's colliders with the liquid,
+    ///         you can only use this specific collider component with liquid.
+    ///     </para>
+    ///     <para>
+    ///         Each collider needs to be added to list of collider in liquid.
+    ///         Otherwise it won't do anything.
+    ///         This is needed since you may have multiple liquids with separate colliders.
+    ///     </para>
+    /// </remarks>
+    [AddComponentMenu("Zibra/Zibra Liquid Collider")]
+    [DisallowMultipleComponent]
     public class ZibraLiquidCollider : Manipulator
     {
-        // Store all colliders separately from all manipulators
+#region Public Interface
+        /// <summary>
+        ///     List of all enabled colliders.
+        /// </summary>
         public static readonly List<ZibraLiquidCollider> AllColliders = new List<ZibraLiquidCollider>();
 
+        /// <summary>
+        ///     Collider friction.
+        /// </summary>
         [FormerlySerializedAs("FluidFriction")]
-        [Tooltip(
-            "0.0 fluid flows without friction, 1.0 fluid sticks to the surface (0 is hydrophobic, 1 is hydrophilic)")]
         [Range(0.0f, 1.0f)]
         public float Friction = 0.0f;
 
 #if ZIBRA_LIQUID_PAID_VERSION
-        [Tooltip("Allows the fluid to apply force to the object")]
+        /// <summary>
+        ///     (Unavailable in Free version) Enables Force Interaction feature, allowing liquid to apply force to the
+        ///     object.
+        /// </summary>
+        [Tooltip("Enables Force Interaction feature, allowing liquid to apply force to the object")]
         public bool ForceInteraction;
 
-        [Tooltip(
-            "Callback that is triggered before applying force interaction. Called even if force interaction is disabled, so you can get forces that would be applied to the object.")]
+        /// <summary>
+        ///     (Unavailable in Free version) Optional force interaction callback that receives forces applied by
+        ///     liquid.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Called even if ForceInteraction is disabled, but forces won't be applied by liquid in that case.
+        ///     </para>
+        ///     <para>
+        ///         Can optionally modify forces liquid applies to the object.
+        ///     </para>
+        /// </remarks>
+        [Tooltip("Optional force interaction callback that receives forces applied by liquid")]
         public ForceInteractionCallbackType ForceInteractionCallback;
 #endif
 
-        override public ManipulatorType GetManipulatorType()
+        public override ManipulatorType GetManipulatorType()
         {
 #if ZIBRA_LIQUID_PAID_VERSION
             if (GetComponent<SDFObjects.NeuralSDF>() != null)
                 return ManipulatorType.NeuralCollider;
+#if ZIBRA_LIQUID_PRO_VERSION
+            else if (GetComponent<SDFObjects.SkinnedMeshSDF>() != null)
+                return ManipulatorType.GroupCollider;
+#endif
             else
 #endif
                 return ManipulatorType.AnalyticCollider;
         }
 
-        private void Update()
+#if UNITY_EDITOR
+        public override Color GetGizmosColor()
         {
-            AdditionalData0.w = Friction;
+            switch (GetManipulatorType())
+            {
+#if ZIBRA_LIQUID_PAID_VERSION
+            case ManipulatorType.NeuralCollider:
+                return Color.grey;
+#endif
+#if ZIBRA_LIQUID_PRO_VERSION
+            case ManipulatorType.GroupCollider:
+                return new Color(0.2f, 0.7f, 0.2f);
+#endif
+            case ManipulatorType.AnalyticCollider:
+            default:
+                return new Color(0.2f, 0.9f, 0.9f);
+            }
         }
-
-        public void ApplyForceTorque(Vector3 Force, Vector3 Torque)
+#endif
+#endregion
+#region Implementation details
+        internal void ApplyForceTorque(Vector3 Force, Vector3 Torque)
         {
 #if ZIBRA_LIQUID_PAID_VERSION
             ForceInteractionData forceInteractionData = new ForceInteractionData();
@@ -81,26 +156,12 @@ namespace com.zibra.liquid.Manipulators
 #endif
         }
 
-#if UNITY_EDITOR
-        override public Color GetGizmosColor()
+        private void Update()
         {
-            switch (GetManipulatorType())
-            {
-#if ZIBRA_LIQUID_PAID_VERSION
-            case Manipulator.ManipulatorType.NeuralCollider:
-                return Color.grey;
-#endif
-            case Manipulator.ManipulatorType.AnalyticCollider:
-            default:
-                return new Color(0.2f, 0.9f, 0.9f);
-            }
+            AdditionalData0.w = Friction;
         }
-#endif
 
-        // clang-format doesn't parse code with new keyword properly
-        // clang-format off
-
-        protected new void OnEnable()
+        private void OnEnable()
         {
             if (!AllColliders?.Contains(this) ?? false)
             {
@@ -108,17 +169,13 @@ namespace com.zibra.liquid.Manipulators
             }
         }
 
-        protected new void OnDisable()
+        private void OnDisable()
         {
             if (AllColliders?.Contains(this) ?? false)
             {
                 AllColliders.Remove(this);
             }
         }
-
-        public virtual ulong GetMemoryFootrpint()
-        {
-            return 0;
-        }
+#endregion
     }
 }

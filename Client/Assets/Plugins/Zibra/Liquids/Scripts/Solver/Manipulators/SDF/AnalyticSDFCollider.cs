@@ -1,24 +1,22 @@
 using System;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using UnityEngine.Rendering;
-using System.Runtime.InteropServices;
 using com.zibra.liquid.Solver;
 using com.zibra.liquid.Manipulators;
+using UnityEngine.Serialization;
 
 namespace com.zibra.liquid.SDFObjects
 {
+    /// @cond SHOW_DEPRECATED
+
+    /// @deprecated
+    /// Only used for backwards compatibility
     [ExecuteInEditMode]
     [Obsolete]
     public class AnalyticSDFCollider : ZibraLiquidCollider
     {
-        /// <summary>
-        /// Currently chosen type of SDF collider
-        /// </summary>
         [SerializeField]
-        private SDFObject.SDFType chosenSDFType = SDFObject.SDFType.Sphere;
+        [FormerlySerializedAs("chosenSDFType")]
+        private AnalyticSDF.SDFType ChosenSDFType = AnalyticSDF.SDFType.Sphere;
 
         [SerializeField]
         private bool InvertSDF = false;
@@ -27,15 +25,17 @@ namespace com.zibra.liquid.SDFObjects
         public void Awake()
         {
             ZibraLiquidCollider collider = gameObject.AddComponent<ZibraLiquidCollider>();
-            AnalyticSDF sdf = gameObject.AddComponent<AnalyticSDF>();
+            if (gameObject.GetComponent<SDFObject>() == null)
+            {
+                AnalyticSDF sdf = gameObject.AddComponent<AnalyticSDF>();
+                sdf.ChosenSDFType = ChosenSDFType;
+                sdf.InvertSDF = InvertSDF;
+            }
 
             collider.Friction = Friction;
 #if ZIBRA_LIQUID_PAID_VERSION
             collider.ForceInteraction = ForceInteraction;
 #endif
-
-            sdf.chosenSDFType = chosenSDFType;
-            sdf.InvertSDF = InvertSDF;
 
             ZibraLiquid[] allLiquids = FindObjectsOfType<ZibraLiquid>();
 
@@ -53,4 +53,5 @@ namespace com.zibra.liquid.SDFObjects
         }
 #endif
     }
+    /// @endcond
 }

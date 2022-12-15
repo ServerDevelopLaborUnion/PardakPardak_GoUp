@@ -13,7 +13,7 @@
             #pragma instancing_options procedural:setup
             #pragma vertex VSMain
             #pragma fragment PSMain
-            #pragma target 3.0
+            #pragma target 3.5
 
             #include "UnityCG.cginc"
             #include "UnityStandardBRDF.cginc"

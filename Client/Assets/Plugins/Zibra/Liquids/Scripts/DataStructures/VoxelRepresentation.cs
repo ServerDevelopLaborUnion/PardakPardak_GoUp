@@ -2,8 +2,10 @@ using System;
 
 namespace com.zibra.liquid.DataStructures
 {
+    // C# doesn't know we use it with JSON deserialization
+#pragma warning disable 0649
     [Serializable]
-    public class ObjectTransform
+    internal class ObjectTransform
     {
         public string Q;
         public string T;
@@ -11,7 +13,7 @@ namespace com.zibra.liquid.DataStructures
     }
 
     [Serializable]
-    public class VoxelRepresentation
+    internal class VoxelRepresentation
     {
         public string embeds;
         public string sd_grid;
@@ -19,8 +21,9 @@ namespace com.zibra.liquid.DataStructures
     }
 
     [Serializable]
-    public class MultiVoxelRepresentation
+    internal class SkinnedVoxelRepresentation
     {
         public VoxelRepresentation[] meshes_data;
     }
+#pragma warning restore 0649
 }

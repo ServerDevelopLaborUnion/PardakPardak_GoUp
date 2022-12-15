@@ -4,20 +4,82 @@ using UnityEngine;
 using UnityEditor;
 #endif
 using UnityEngine.Rendering;
-using System.Runtime.InteropServices;
-using com.zibra.liquid.Solver;
 using com.zibra.liquid.Manipulators;
+using UnityEngine.Serialization;
 
 namespace com.zibra.liquid.SDFObjects
 {
     /// <summary>
-    /// An analytical ZibraFluid SDF
+    ///     Class containing analytic SDF.
     /// </summary>
+    /// <remarks>
+    ///     Analytic SDF is and SDF that can be represented by formula,
+    ///     and so doesn't require much data to store or special processing,
+    ///     but also limited to simple shapes which can be represented with formula.
+    /// </remarks>
     [AddComponentMenu("Zibra/Zibra Analytic SDF")]
+    [DisallowMultipleComponent]
     public class AnalyticSDF : SDFObject
     {
+#region Public Interface
+        /// <summary>
+        ///     Types of analytical shapes.
+        /// </summary>
+        public enum SDFType
+        {
+            Sphere,
+            Box,
+            Capsule,
+            Torus,
+            Cylinder,
+        }
+
+        /// <summary>
+        ///     Currently chosen analytic shape.
+        /// </summary>
+        [FormerlySerializedAs("chosenSDFType")]
+        [Tooltip("Currently chosen analytic shape")]
+        public SDFType ChosenSDFType = SDFType.Sphere;
+
+        /// <summary>
+        ///     Returns size of bounding box for current shape.
+        /// </summary>
+        public Vector3 GetBBoxSize()
+        {
+            Vector3 scale = transform.lossyScale;
+            switch (ChosenSDFType)
+            {
+            default:
+                return 0.5f * scale;
+            case SDFType.Capsule:
+                return new Vector3(scale.x, scale.y, scale.x);
+            case SDFType.Torus:
+                return new Vector3(scale.x, scale.y, scale.x);
+            case SDFType.Cylinder:
+                return new Vector3(scale.x, scale.y, scale.x);
+            }
+        }
+
+        public override ulong GetVRAMFootprint()
+        {
+            return 0;
+        }
+#endregion
+#region Deprecated
+        /// @cond SHOW_DEPRECATED
+
+        /// @deprecated
+        /// Only used for backwards compatibility
+        [HideInInspector]
+        [NonSerialized]
+        [Obsolete("chosenSDFType is deprecated. Use ChosenSDFType instead.", true)]
+        public SDFType chosenSDFType = SDFType.Sphere;
+
+/// @endcond
+#endregion
+#region Implementation details
 #if UNITY_EDITOR
-        void OnDrawGizmosSelected()
+        private void OnDrawGizmosSelected()
         {
             Manipulator manip = GetComponent<Manipulator>();
 
@@ -31,7 +93,7 @@ namespace com.zibra.liquid.SDFObjects
             Gizmos.color = Handles.color = gizmosColor;
             Gizmos.matrix = transform.localToWorldMatrix;
             Handles.zTest = CompareFunction.LessEqual;
-            switch (chosenSDFType)
+            switch (ChosenSDFType)
             {
             case SDFType.Sphere:
                 Gizmos.DrawWireSphere(new Vector3(0, 0, 0), 0.5f);
@@ -54,26 +116,11 @@ namespace com.zibra.liquid.SDFObjects
             }
         }
 
-        void OnDrawGizmos()
+        private void OnDrawGizmos()
         {
             OnDrawGizmosSelected();
         }
 #endif
-
-        public override Vector3 GetBBoxSize()
-        {
-            Vector3 scale = transform.lossyScale;
-            switch (chosenSDFType)
-            {
-            default:
-                return 0.5f * scale;
-            case SDFType.Capsule:
-                return new Vector3(scale.x, scale.y, scale.x);
-            case SDFType.Torus:
-                return new Vector3(scale.x, scale.y, scale.x);
-            case SDFType.Cylinder:
-                return new Vector3(scale.x, scale.y, scale.x);
-            }
-        }
+#endregion
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Serialization;
-using System.Collections.Generic;
+
 #if UNITY_EDITOR
 using UnityEngine.SceneManagement;
 using UnityEditor;
@@ -9,67 +9,157 @@ using UnityEditor;
 
 namespace com.zibra.liquid.DataStructures
 {
+    /// <summary>
+    ///     Component that contains liquid material parameters.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         It doesn't execute anything by itself, it is used by <see cref="ZibraLiquid"/> instead.
+    ///     </para>
+    ///     <para>
+    ///         It's separated so you can save and apply presets for this component separately.
+    ///     </para>
+    /// </remarks>
     [ExecuteInEditMode]
     public class ZibraLiquidMaterialParameters : MonoBehaviour
     {
+#region Public Interface
+#if ZIBRA_LIQUID_PRO_VERSION
+        /// <summary>
+        ///     (Pro version only) Container for parameters of additional liquid materials.
+        /// </summary>
+        /// <remarks>
+        ///     Few material parameters are global for whole liquid,
+        ///     and can only be adjusted from main material parameters.
+        /// </remarks>
         [System.Serializable]
         public class LiquidMaterial
         {
-            [Tooltip("The color of the liquid body")]
+            /// <summary>
+            ///     Color of the liquid.
+            /// </summary>
+            /// <remarks>
+            ///     Opacity can be adjusted via <see cref="ScatteringAmount"/> and <see cref="AbsorptionAmount"/>.
+            /// </remarks>
+            [Tooltip("Color of the liquid")]
             public Color Color = new Color(0.3411765f, 0.92156863f, 0.85236126f, 1.0f);
 
+            /// <summary>
+            ///     Emissive color of the liquid.
+            /// </summary>
             [ColorUsage(true, true)]
+            [Tooltip("Emissive color of the liquid")]
             public Color EmissiveColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-            [Tooltip(
-                "The amount of light being scattered by the liquid volume. Visually adds a fog to the fluid volume. Maximum value makes the liquid opaque.")]
+            /// <summary>
+            ///     Amount of light scattering happening inside the liquid.
+            /// </summary>
+            /// <remarks>
+            ///     Affects opacity.
+            /// </remarks>
+            [Tooltip("Amount of light scattering happening inside the liquid. Affects opacity.")]
             [Range(0.0f, 100.0f)]
             public float ScatteringAmount = 5.0f;
 
-            [Tooltip(
-                "The amount of light absorbed in the liquid volume. Visually darkens all colors except to the selected liquid color.")]
+            /// <summary>
+            ///     Amount of light absorption happening inside the liquid.
+            /// </summary>
+            /// <remarks>
+            ///     Affects opacity.
+            /// </remarks>
+            [Tooltip("Amount of light absorption happening inside the liquid. Affects opacity.")]
             [Range(0.0f, 100.0f)]
             public float AbsorptionAmount = 20.0f;
 
-            [Tooltip("The metalness of the surface")]
-            [Range(0.0f, 1.0f)]
-            public float Metalness = 0.3f;
-
-            [Tooltip("The roughness of the surface")]
+            /// <summary>
+            ///     Roughness of the liquid surface.
+            /// </summary>
+            [Tooltip("Roughness of the liquid surface")]
             [Range(0.0f, 1.0f)]
             public float Roughness = 0.3f;
-        }
 
-#if UNITY_EDITOR
-        private static string DEFAULT_UPSCALE_MATERIAL_GIUD = "374557399a8cb1b499aee6a0cc226496";
-        private static string DEFAULT_FLUID_MESH_MATERIAL_GIUD = "248b1858901577949a18bb8d09cb583f";
-        private static string DEFAULT_SDF_RENDER_MATERIAL_GIUD = "a29ad26b5c6c24c43ba0cbdc686b6b41";
-        private static string NO_OP_MATERIAL_GIUD = "248b1858901577949a18bb8d09cb583f";
+            /// <summary>
+            ///     Metalness of the liquid surface.
+            /// </summary>
+            [Tooltip("Metalness of the liquid surface")]
+            [Range(0.0f, 1.0f)]
+            public float Metalness = 0.3f;
+        }
 #endif
 
-        [Tooltip("Custom mesh fluid material.")]
+        /// <summary>
+        ///     Material that will be used to render liquid in Mesh Render mode.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         If you want to create your own material, you'll need to use default one as a reference.
+        ///     </para>
+        ///     <para>
+        ///         This is the material that gets parameters defined in <see cref="ZibraLiquidMaterialParameters"/>
+        ///     </para>
+        ///     <para>
+        ///         If you set it to null in Editor, it'll revert to default.
+        ///     </para>
+        /// </remarks>
+        [Tooltip("Material that will be used to render liquid in Mesh Render mode")]
         public Material FluidMeshMaterial;
 
-        [Tooltip("Custom upscale material. Not used if you don't enable downscale in Liquid instance.")]
+        /// <summary>
+        ///     Material that will be used to upscale liquid in Mesh Render mode.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Most users won't need to customize this material,
+        ///         but if you want to create your own material, you'll need to use default one as a reference.
+        ///     </para>
+        ///     <para>
+        ///         Has no effect unless you enable downscale in ZibraLiquid component.
+        ///     </para>
+        ///     <para>
+        ///         If you set it to null in Editor, it'll revert to default.
+        ///     </para>
+        /// </remarks>
+        [Tooltip("Material that will be used to upscale liquid in Mesh Render mode")]
         public Material UpscaleMaterial;
 
         // Don't think anyone will need to edit this material
         // But if anyone will ever need that, removing [HideInInspector] will work
+
+        /// <summary>
+        ///     Material that will be used to upscale liquid in Mesh Render mode.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         This material is meant to only be used for debugging.
+        ///     </para>
+        ///     <para>
+        ///         We don't expect that anyone will need to modify this,
+        ///         but if you want to create your own material, you'll need to use default one as a reference.
+        ///     </para>
+        ///     <para>
+        ///         Has no effect unless you enable VisualizeSceneSDF in ZibraLiquid component.
+        ///     </para>
+        ///     <para>
+        ///         If you set it to null in Editor, it'll revert to default.
+        ///     </para>
+        /// </remarks>
         [HideInInspector]
         public Material SDFRenderMaterial;
 
-        [HideInInspector]
-        public Material NoOpMaterial;
-
-        [NonSerialized]
-        [Obsolete("RefractionColor is deprecated. Use Color instead.", true)]
-        public Color RefractionColor;
-
-        [Tooltip("The color of the liquid body")]
+        /// <summary>
+        ///     Color of the liquid.
+        /// </summary>
+        /// <remarks>
+        ///     Opacity can be adjusted via <see cref="ScatteringAmount"/> and <see cref="AbsorptionAmount"/>.
+        /// </remarks>
+        [Tooltip("Color of the liquid")]
         [FormerlySerializedAs("RefractionColor")]
         public Color Color = new Color(0.3411765f, 0.92156863f, 0.85236126f, 1.0f);
 
-        [Tooltip("The color of the liquid reflection.")]
+        /// <summary>
+        ///     Color of the reflections on the liquid surface.
+        /// </summary>
+        [Tooltip("Color of the reflections on the liquid surface")]
         [ColorUsage(true, true)]
 #if UNITY_PIPELINE_HDRP
         public Color ReflectionColor = new Color(0.004434771f, 0.004434771f, 0.004434771f, 1.0f);
@@ -77,17 +167,241 @@ namespace com.zibra.liquid.DataStructures
         public Color ReflectionColor = new Color(1.39772f, 1.39772f, 1.39772f, 1.0f);
 #endif
 
-        [Tooltip("The emissive color of the liquid. Normally black for most liquids.")]
+        /// <summary>
+        ///     Emissive color of the liquid.
+        /// </summary>
+        /// <remarks>
+        ///     Normally pure black for most liquids.
+        /// </remarks>
+        [Tooltip("Emissive color of the liquid. Normally pure black for most liquids.")]
         [ColorUsage(true, true)]
         public Color EmissiveColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-#if ZIBRA_LIQUID_DEBUG
-        [NonSerialized]
-        public float NeuralSamplingDistance = 1.0f;
-        [NonSerialized]
-        public float SDFDebug = 0.0f;
-#endif
+        /// <summary>
+        ///     Roughness of the liquid surface.
+        /// </summary>
+        [Tooltip("Roughness of the liquid surface")]
+        [Range(0.0f, 1.0f)]
+        public float Roughness = 0.04f;
 
+        /// <summary>
+        ///     Metalness of the liquid surface.
+        /// </summary>
+        [Tooltip("Metalness of the liquid surface")]
+        [FormerlySerializedAs("Metal")]
+        [Range(0.0f, 1.0f)]
+        public float Metalness = 0.3f;
+
+        /// <summary>
+        ///     Amount of light scattering happening inside the liquid.
+        /// </summary>
+        /// <remarks>
+        ///     Affects opacity.
+        /// </remarks>
+        [Tooltip("Amount of light scattering happening inside the liquid. Affects opacity.")]
+        [Range(0.0f, 400.0f)]
+        public float ScatteringAmount = 5.0f;
+
+        /// <summary>
+        ///     Amount of light absorption happening inside the liquid.
+        /// </summary>
+        /// <remarks>
+        ///     Affects opacity.
+        /// </remarks>
+        [Tooltip("Amount of light absorption happening inside the liquid. Affects opacity.")]
+        [FormerlySerializedAs("Opacity")]
+        [Range(0.0f, 400.0f)]
+        public float AbsorptionAmount = 20.0f;
+
+        /// <summary>
+        ///     Index of refraction.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Value of 1.0 corresponds to no refraction, same behaviour as normal transparent materials.
+        ///     </para>
+        ///     <para>
+        ///         Values for common materials for reference: Water - ~1.33, Oil - ~1.47, Glass - ~1.52
+        ///     </para>
+        /// </remarks>
+        [Tooltip("Index of refraction")]
+        [Range(1.0f, 3.0f)]
+        public float IndexOfRefraction = 1.333f;
+
+        /// <summary>
+        ///     Radius of the blur that is applied to liquid density before mesh generation.
+        /// </summary>
+        /// <remarks>
+        ///     Hihger values produce smoother liquid mesh normals.
+        /// </remarks>
+        [Tooltip("Radius of the blur that is applied to liquid density before mesh generation")]
+        [Range(0.01f, 4.0f)]
+        public float FluidSurfaceBlur = 1.5f;
+
+#if ZIBRA_LIQUID_PRO_VERSION
+        /// <summary>
+        ///     (Pro version only) Radius of the blur that is applied to liquid density before mesh generation.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Hihger values produce smoother liquid mesh normals.
+        ///     </para>
+        ///     <para>
+        ///         Foam parameters have no effect outside of Mesh Render mode.
+        ///     </para>
+        /// </remarks>
+        [Tooltip("Radius of the blur that is applied to liquid density before mesh generation")]
+        [FormerlySerializedAs("Foam")]
+        [Range(0.0f, 3.0f)]
+        public float FoamIntensity = 0.8f;
+
+        /// <summary>
+        ///     (Pro version only) Rate of foam decay.
+        /// </summary>
+        /// <remarks>
+        ///     Foam parameters have no effect outside of Mesh Render mode.
+        /// </remarks>
+        [Tooltip("Rate of foam decay")]
+        [Range(0.0f, 0.1f)]
+        public float FoamDecay = 0.01f;
+
+        /// <summary>
+        ///     (Pro version only) Foam spawn threshold.
+        /// </summary>
+        /// <remarks>
+        ///     Foam parameters have no effect outside of Mesh Render mode.
+        /// </remarks>
+        [Tooltip("Foam spawn threshold")]
+        [FormerlySerializedAs("FoamDensity")]
+        [Range(0.0f, 1.0f)]
+        public float FoamAmount = 1.0f;
+
+        /// <summary>
+        ///     (Pro version only) Enables projection of optional noise texture on foam.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Noise texture improves foam visual by additing additional fake details.
+        ///     </para>
+        ///     <para>
+        ///         Foam parameters have no effect outside of Mesh Render mode.
+        ///     </para>
+        /// </remarks>
+        [Tooltip("Enables projection of optional noise texture on foam")]
+        public bool EnableFoamTexture = false;
+
+        /// <summary>
+        ///     (Pro version only) Repeat period of foam texture.
+        /// </summary>
+        /// <remarks>
+        ///     Foam texture parameters have no effect outside of Mesh Render mode,
+        ///     or when <see cref="EnableFoamTexture"/> set to false.
+        /// </remarks>
+        [Tooltip("The repeation frequency of the foam texture")]
+        [Range(1.0f, 100.0f)]
+        public float FoamRepeatPeriod = 9.0f;
+
+        /// <summary>
+        ///     (Pro version only) Scale of projected foam texture layers.
+        /// </summary>
+        /// <remarks>
+        ///     Foam texture parameters have no effect outside of Mesh Render mode,
+        ///     or when <see cref="EnableFoamTexture"/> set to false.
+        /// </remarks>
+        [Tooltip("Scale of projected foam texture layers")]
+        [Range(0.05f, 20.0f)]
+        public float FoamScale = 2.0f;
+
+        /// <summary>
+        ///     (Pro version only) Contrast of projected foam texture.
+        /// </summary>
+        /// <remarks>
+        ///     Foam texture parameters have no effect outside of Mesh Render mode,
+        ///     or when <see cref="EnableFoamTexture"/> set to false.
+        /// </remarks>
+        [Tooltip("Contrast of projected foam texture")]
+        [Range(0.0f, 3.0f)]
+        public float FoamAmplitude = 1.0f;
+
+        /// <summary>
+        ///     (Pro version only) Contrast between different layers of noise texture.
+        /// </summary>
+        /// <remarks>
+        ///     Foam texture parameters have no effect outside of Mesh Render mode,
+        ///     or when <see cref="EnableFoamTexture"/> set to false.
+        /// </remarks>
+        [Tooltip("Contrast between different layers of noise texture")]
+        [Range(0.1f, 5.0f)]
+        public float FoamFBM = 2.0f;
+
+        /// <summary>
+        ///     (Pro version only) Controls how much foam info does particle get from the grid.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Higher values makes particles get foam values closer to the avarage value.
+        ///         Which blurs foam values.
+        ///         Also makes foam dissapear as a result.
+        ///     </para>
+        ///     <para>
+        ///         Foam texture parameters have no effect outside of Mesh Render mode,
+        ///         or when <see cref="EnableFoamTexture"/> set to false.
+        ///     </para>
+        /// </remarks>
+        [Tooltip("Controls how much foam info does particle get from the grid")]
+        [Range(0.0f, 1.0f)]
+        public float FoamBlurring = 0.0001f;
+
+        /// <summary>
+        ///     (Pro version only) Additional Material 1.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         You can use it by using Material1 parameter of particle species.
+        ///     </para>
+        ///     <para>
+        ///         Multi-material parameters have no effect outside of Mesh Render mode.
+        ///     </para>
+        /// </remarks>
+        public LiquidMaterial Material1 = new LiquidMaterial();
+
+        /// <summary>
+        ///     (Pro version only) Additional Material 2.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         You can use it by using Material2 parameter of particle species.
+        ///     </para>
+        ///     <para>
+        ///         Multi-material parameters have no effect outside of Mesh Render mode.
+        ///     </para>
+        /// </remarks>
+        public LiquidMaterial Material2 = new LiquidMaterial();
+
+        /// <summary>
+        ///     (Pro version only) Additional Material 3.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         You can use it by using Material3 parameter of particle species.
+        ///     </para>
+        ///     <para>
+        ///         Multi-material parameters have no effect outside of Mesh Render mode.
+        ///     </para>
+        /// </remarks>
+        public LiquidMaterial Material3 = new LiquidMaterial();
+#endif
+#endregion
+#region Deprecated
+        /// @cond SHOW_DEPRECATED
+        /// @deprecated
+        /// Only used for backwards compatibility
+        [NonSerialized]
+        [Obsolete("RefractionColor is deprecated. Use Color instead.", true)]
+        public Color RefractionColor;
+
+        /// @deprecated
+        /// Only used for backwards compatibility
         [NonSerialized]
         [HideInInspector]
         [Obsolete(
@@ -95,75 +409,92 @@ namespace com.zibra.liquid.DataStructures
             true)]
         public float Smoothness = 0.96f;
 
+        /// Only used for backwards compatibility
         [SerializeField]
         [HideInInspector]
         [FormerlySerializedAs("Smoothness")]
         private float SmoothnessOld = 0.96f;
 
-        [Range(0.0f, 1.0f)]
-        public float Roughness = 0.04f;
-
+        /// @deprecated
+        /// Only used for backwards compatibility
         [NonSerialized]
         [Obsolete("Metal is deprecated. Use Metalness instead.", true)]
         public float Metal;
 
-        [Tooltip("The metalness of the surface")]
-        [FormerlySerializedAs("Metal")]
-        [Range(0.0f, 1.0f)]
-        public float Metalness = 0.3f;
-
-        [Tooltip(
-            "The amount of light being scattered by the liquid volume. Visually adds a fog to the fluid volume. Maximum value makes the liquid opaque.")]
-        [Range(0.0f, 400.0f)]
-        public float ScatteringAmount = 5.0f;
-
-        [Tooltip(
-            "The amount of light absorbed in the liquid volume. Visually darkens all colors except to the selected liquid color.")]
-        [FormerlySerializedAs("Opacity")]
-        [Range(0.0f, 400.0f)]
-        public float AbsorptionAmount = 20.0f;
-
+        /// @deprecated
+        /// Only used for backwards compatibility
         [NonSerialized]
         [Obsolete("Opacity is deprecated. Use AbsorptionAmount instead.", true)]
         public float Opacity;
 
+        /// @deprecated
+        /// Only used for backwards compatibility
         [HideInInspector]
         [Obsolete("Shadowing is deprecated. We currently don't have correct shadowing effect.", true)]
         public float Shadowing;
 
+        /// @deprecated
+        /// Only used for backwards compatibility
         [NonSerialized]
         [Obsolete("RefractionDistort is deprecated. Use RefractionDistortion instead.", true)]
         public float RefractionDistort;
 
+        /// @deprecated
+        /// Only used for backwards compatibility
         [NonSerialized]
         [Obsolete(
             "RefractionDistortion is deprecated. Use IndexOfRefraction instead. Note that it have different scale.",
             true)]
         public float RefractionDistortion;
 
-        [Tooltip("The index of refraction")]
-        [Range(1.0f, 3.0f)]
-        public float IndexOfRefraction = 1.333f;
+#if ZIBRA_LIQUID_PRO_VERSION
+        /// @deprecated
+        /// Only used for backwards compatibility
+        [NonSerialized]
+        [Obsolete("Foam is deprecated. Use FoamIntensity instead.", true)]
+        public float Foam;
 
-        [Tooltip(
-            "The radius of the blur of the liquid density on the simulation grid. Controls the smoothness of the normals.")]
-        [Range(0.01f, 4.0f)]
-        public float FluidSurfaceBlur = 1.5f;
+        /// @deprecated
+        /// Only used for backwards compatibility
+        [NonSerialized]
+        [Obsolete("FoamDensity is deprecated. Use FoamAmount instead.", true)]
+        public float FoamDensity;
+#endif
+        /// @endcond
+#endregion
+#region Implementation details
+        [HideInInspector]
+        [SerializeField]
+        internal Material NoOpMaterial;
 
         [HideInInspector]
         [SerializeField]
         private int ObjectVersion = 1;
 
+// Not defined in release versions of the plugin
+#if ZIBRA_LIQUID_DEBUG
+        [NonSerialized]
+        internal float NeuralSamplingDistance = 1.0f;
+        [NonSerialized]
+        internal float SDFDebug = 0.0f;
+#endif
+
 #if UNITY_EDITOR
-        void OnSceneOpened(Scene scene, UnityEditor.SceneManagement.OpenSceneMode mode)
+        private static string DEFAULT_UPSCALE_MATERIAL_GIUD = "374557399a8cb1b499aee6a0cc226496";
+        private static string DEFAULT_FLUID_MESH_MATERIAL_GIUD = "248b1858901577949a18bb8d09cb583f";
+        private static string DEFAULT_SDF_RENDER_MATERIAL_GIUD = "a29ad26b5c6c24c43ba0cbdc686b6b41";
+        private static string NO_OP_MATERIAL_GIUD = "248b1858901577949a18bb8d09cb583f";
+
+        private void OnSceneOpened(Scene scene, UnityEditor.SceneManagement.OpenSceneMode mode)
         {
             Debug.Log("Zibra Liquid Material Parameters format was updated. Please resave scene.");
             UnityEditor.EditorUtility.SetDirty(gameObject);
+            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
         }
 #endif
 
         [ExecuteInEditMode]
-        public void Awake()
+        private void Awake()
         {
             // If Material Parameters is in old format we need to parse old parameters and come up with equivalent new
             // ones
@@ -191,7 +522,7 @@ namespace com.zibra.liquid.DataStructures
                 {
                     const float TotalScale = 0.33f;
                     float SimulationScale =
-                        TotalScale * (instance.containerSize.x + instance.containerSize.y + instance.containerSize.z);
+                        TotalScale * (instance.ContainerSize.x + instance.ContainerSize.y + instance.ContainerSize.z);
 
                     ScatteringAmount *= SimulationScale;
                     AbsorptionAmount *= SimulationScale;
@@ -214,14 +545,8 @@ namespace com.zibra.liquid.DataStructures
         }
 
 #if UNITY_EDITOR
-        public void OnDestroy()
+        private void Reset()
         {
-            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
-        }
-
-        void Reset()
-        {
-            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
             ObjectVersion = 3;
             string DefaultUpscaleMaterialPath = AssetDatabase.GUIDToAssetPath(DEFAULT_UPSCALE_MATERIAL_GIUD);
             UpscaleMaterial = AssetDatabase.LoadAssetAtPath(DefaultUpscaleMaterialPath, typeof(Material)) as Material;
@@ -233,9 +558,10 @@ namespace com.zibra.liquid.DataStructures
                 AssetDatabase.LoadAssetAtPath(DefaultSDFRenderMaterialPath, typeof(Material)) as Material;
             string NoOpMaterialPath = AssetDatabase.GUIDToAssetPath(NO_OP_MATERIAL_GIUD);
             NoOpMaterial = AssetDatabase.LoadAssetAtPath(NoOpMaterialPath, typeof(Material)) as Material;
+            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
         }
 
-        void OnValidate()
+        private void OnValidate()
         {
             if (UpscaleMaterial == null)
             {
@@ -259,5 +585,6 @@ namespace com.zibra.liquid.DataStructures
             NoOpMaterial = AssetDatabase.LoadAssetAtPath(NoOpMaterialPath, typeof(Material)) as Material;
         }
 #endif
+#endregion
     }
 }

@@ -1,11 +1,10 @@
 #if UNITY_EDITOR
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
 namespace com.zibra.liquid.Utilities
 {
-    public static class GizmosHelper
+    internal static class GizmosHelper
     {
         public static void DrawWireCapsule(Vector3 pos, Quaternion rot, float radius, float height)
         {
@@ -87,10 +86,10 @@ namespace com.zibra.liquid.Utilities
             Gizmos.DrawRay(origin + vector, left * arrowHeadLength);
         }
 
-        static float Phi = 0.5f * (Mathf.Sqrt(5.0f) + 1.0f);
+        private static float Phi = 0.5f * (Mathf.Sqrt(5.0f) + 1.0f);
 
         // i-th point of n uniformly distibuted fibonacci points on a sphere
-        static public Vector3 FibonacciSpherePoint(int i, int n)
+        public static Vector3 FibonacciSpherePoint(int i, int n)
         {
             Vector2 pt = new Vector2(2.0f * Mathf.PI * ((i / Phi) % 1.0f), Mathf.Acos(1.0f - (2.0f * i + 1.0f) / n));
             return new Vector3(Mathf.Cos(pt.x) * Mathf.Sin(pt.y), Mathf.Sin(pt.x) * Mathf.Sin(pt.y), Mathf.Cos(pt.y));
