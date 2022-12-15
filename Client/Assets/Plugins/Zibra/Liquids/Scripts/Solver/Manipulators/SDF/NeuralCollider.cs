@@ -1,16 +1,15 @@
 #if ZIBRA_LIQUID_PAID_VERSION
 using System;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using UnityEngine.Rendering;
-using System.Runtime.InteropServices;
 using com.zibra.liquid.Solver;
 using com.zibra.liquid.Manipulators;
 
 namespace com.zibra.liquid.SDFObjects
 {
+    /// @cond SHOW_DEPRECATED
+
+    /// @deprecated
+    /// Only used for backwards compatibility
     [ExecuteInEditMode]
     [Obsolete]
     public class NeuralCollider : ZibraLiquidCollider
@@ -19,17 +18,19 @@ namespace com.zibra.liquid.SDFObjects
         private bool InvertSDF = false;
 
 #if UNITY_EDITOR
-        public void Awake()
+        private void Awake()
         {
             ZibraLiquidCollider collider = gameObject.AddComponent<ZibraLiquidCollider>();
-            NeuralSDF sdf = gameObject.AddComponent<NeuralSDF>();
+            if (gameObject.GetComponent<SDFObject>() == null)
+            {
+                NeuralSDF sdf = gameObject.AddComponent<NeuralSDF>();
+                sdf.InvertSDF = InvertSDF;
+            }
 
             collider.Friction = Friction;
 #if ZIBRA_LIQUID_PAID_VERSION
             collider.ForceInteraction = ForceInteraction;
 #endif
-
-            sdf.InvertSDF = InvertSDF;
 
             ZibraLiquid[] allLiquids = FindObjectsOfType<ZibraLiquid>();
 
@@ -47,5 +48,6 @@ namespace com.zibra.liquid.SDFObjects
         }
 #endif
     }
+    /// @endcond
 }
 #endif

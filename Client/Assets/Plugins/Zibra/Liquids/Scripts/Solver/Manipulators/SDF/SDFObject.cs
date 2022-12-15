@@ -1,12 +1,46 @@
-using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using com.zibra.liquid.Manipulators;
 
 namespace com.zibra.liquid.SDFObjects
 {
-    public class SDFColliderCompare : Comparer<ZibraLiquidCollider>
+    /// <summary>
+    ///     Base class for SDF classes.
+    /// </summary>
+    /// <remarks>
+    ///     SDFs used to define shapes for colliders/manipulators.
+    /// </remarks>
+    [ExecuteInEditMode]
+    [DisallowMultipleComponent]
+    public abstract class SDFObject : MonoBehaviour
+    {
+#region Public Interface
+        /// <summary>
+        ///     Whether to invert collider to only allow liquid inside.
+        /// </summary>
+        [Tooltip("Inverts collider so liquid can only exist inside.")]
+        public bool InvertSDF = false;
+
+        /// <summary>
+        ///     Offset for distance to SDF.
+        /// </summary>
+        /// <remarks>
+        ///     Allows you to "shrink" or "expand" SDF.
+        /// </remarks>
+        [Tooltip("How far is the SDF surface from the object surface")]
+        public float SurfaceDistance = 0.0f;
+
+        /// <summary>
+        ///     Calculates approximate VRAM usage by SDF.
+        /// </summary>
+        /// <returns>
+        ///     Approximate VRAM usage in bytes.
+        /// </returns>
+        public abstract ulong GetVRAMFootprint();
+#endregion
+    }
+
+    internal class SDFColliderCompare : Comparer<ZibraLiquidCollider>
     {
         // Compares manipulator type ID
         public override int Compare(ZibraLiquidCollider x, ZibraLiquidCollider y)
@@ -17,42 +51,6 @@ namespace com.zibra.liquid.SDFObjects
                 return result;
             }
             return x.GetHashCode().CompareTo(y.GetHashCode());
-        }
-    }
-
-    // SDF Collider template
-    [ExecuteInEditMode] // Careful! This makes script execute in edit mode.
-                        // Use "EditorApplication.isPlaying" for play mode only check.
-                        // Encase this check and "using UnityEditor" in "#if UNITY_EDITOR" preprocessor directive to
-                        // prevent build errors
-    [DisallowMultipleComponent]
-    public abstract class SDFObject : MonoBehaviour
-    {
-        /// <summary>
-        /// Types of Analytical SDF's
-        /// </summary>
-        public enum SDFType
-        {
-            Sphere,
-            Box,
-            Capsule,
-            Torus,
-            Cylinder,
-        }
-        /// <summary>
-        /// Currently chosen type of SDF collider
-        /// </summary>
-        public SDFType chosenSDFType = SDFType.Sphere;
-
-        [Tooltip("Inverts collider so liquid can only exist inside.")]
-        public bool InvertSDF = false;
-
-        [Tooltip("How far is the SDF surface from the object surface")]
-        public float SurfaceDistance = 0.0f;
-
-        virtual public Vector3 GetBBoxSize()
-        {
-            return transform.localScale;
         }
     }
 }

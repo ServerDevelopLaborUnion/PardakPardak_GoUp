@@ -10,24 +10,88 @@ using UnityEngine.SceneManagement;
 
 namespace com.zibra.liquid.Manipulators
 {
+    /// <summary>
+    ///     (Unavailable in Free version) Detector for liquid particles.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Calculates number of particles inside its shape.
+    ///     </para>
+    ///     <para>
+    ///         Updated each simulation step.
+    ///     </para>
+    /// </remarks>
     [AddComponentMenu("Zibra/Zibra Liquid Detector")]
     [DisallowMultipleComponent]
     public class ZibraLiquidDetector : Manipulator
     {
-        [NonSerialized]
-        public int particlesInside = 0;
+#region Public Interface
+        /// <summary>
+        ///     Number of particles inside detector.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Same number of particles can correspond to different volume,
+        ///         depending on liquid settings.
+        ///     </para>
+        ///     <para>
+        ///         Since liquid is somewhat compressible, even inside same simulation,
+        ///         same number of particles can have somewhat different volume.
+        ///     </para>
+        /// </remarks>
+        public int ParticlesInside { get; internal set; } = 0;
 
-        [HideInInspector]
-        [SerializeField]
-        private int ObjectVersion = 1;
+        /// <summary>
+        ///     Bottom left corner of 3D bounding box of detected liquid (in world coordinates).
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         If no liquid was detected, this field will be set to zeros and the whole bounding box area will equal 0.
+        ///     </para>
+        /// </remarks>
+        public Vector3 BoundingBoxMin { get; internal set; } = new Vector3(0.0f, 0.0f, 0.0f);
 
-        override public ManipulatorType GetManipulatorType()
+        /// <summary>
+        ///     Top right corner of 3D bounding box of detected liquid (in world coordinates).
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         If no liquid was detected, this field will be set to zeros and the whole bounding box area will equal 0.
+        ///     </para>
+        /// </remarks>
+        public Vector3 BoundingBoxMax { get; internal set; } = new Vector3(0.0f, 0.0f, 0.0f);
+
+        public override ManipulatorType GetManipulatorType()
         {
             return ManipulatorType.Detector;
         }
 
+#if UNITY_EDITOR
+        public override Color GetGizmosColor()
+        {
+            return Color.magenta;
+        }
+#endif
+#endregion
+#region Deprecated
+        /// @cond SHOW_DEPRECATED
+
+        /// @deprecated
+        /// Only used for backwards compatibility
+        [HideInInspector]
+        [NonSerialized]
+        [Obsolete("particlesInside is deprecated. Use ParticlesInside instead.", true)]
+        public int particlesInside;
+
+/// @endcond
+#endregion
+#region Implementation details
+        [HideInInspector]
+        [SerializeField]
+        private int ObjectVersion = 1;
+
         [ExecuteInEditMode]
-        public void Awake()
+        private void Awake()
         {
 #if UNITY_EDITOR
             bool updated = false;
@@ -38,7 +102,7 @@ namespace com.zibra.liquid.Manipulators
                 if (GetComponent<SDFObject>() == null)
                 {
                     AnalyticSDF sdf = gameObject.AddComponent<AnalyticSDF>();
-                    sdf.chosenSDFType = SDFObject.SDFType.Box;
+                    sdf.ChosenSDFType = AnalyticSDF.SDFType.Box;
 #if UNITY_EDITOR
                     updated = true;
 #endif
@@ -57,32 +121,34 @@ namespace com.zibra.liquid.Manipulators
         }
 
 #if UNITY_EDITOR
-        override public Color GetGizmosColor()
-        {
-            return Color.magenta;
-        }
-
-        void OnSceneOpened(Scene scene, UnityEditor.SceneManagement.OpenSceneMode mode)
+        private void OnSceneOpened(Scene scene, UnityEditor.SceneManagement.OpenSceneMode mode)
         {
             Debug.Log("Zibra Liquid Detector format was updated. Please resave scene.");
             UnityEditor.EditorUtility.SetDirty(gameObject);
+            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
         }
 
-        void Reset()
+        private void Reset()
         {
-            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
             ObjectVersion = 2;
+            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
         }
 
-        // clang-format doesn't parse code with new keyword properly
-        // clang-format off
-
-        public new void OnDestroy()
+        private void OnDrawGizmosSelected()
         {
-            base.OnDestroy();
-            UnityEditor.SceneManagement.EditorSceneManager.sceneOpened -= OnSceneOpened;
+            if (ParticlesInside > 0)
+            {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawWireCube((BoundingBoxMax + BoundingBoxMin) / 2, (BoundingBoxMax - BoundingBoxMin));
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            OnDrawGizmosSelected();
         }
 #endif
+#endregion
     }
 }
 

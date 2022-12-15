@@ -1,10 +1,10 @@
 using AOT;
 using System;
 using System.Runtime.InteropServices;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif // UNITY_EDITOR
-using UnityEngine;
 
 namespace com.zibra.liquid.Solver
 {
@@ -15,10 +15,33 @@ namespace com.zibra.liquid.Solver
 #endif
     public static class ZibraLiquidDebug
     {
-        public static string EditorPrefsKey = "ZibraLiquidsLogLevel";
-        public static ZibraLiquidBridge.LogLevel CurrentLogLevel;
+        public enum LogLevel
+        {
+            Verbose = 0,
+            Info = 1,
+            Performance = 2,
+            Warning = 3,
+            Error = 4,
+        }
 
-        public static void SetLogLevel(ZibraLiquidBridge.LogLevel level)
+        [StructLayout(LayoutKind.Sequential)]
+        public struct DebugMessage
+        {
+            public IntPtr Text;
+            public ZibraLiquidDebug.LogLevel Level;
+        };
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct LoggerSettings
+        {
+            public IntPtr PFNCallback;
+            public ZibraLiquidDebug.LogLevel LogLevel;
+        };
+
+        public static string EditorPrefsKey = "ZibraLiquidsLogLevel";
+        public static LogLevel CurrentLogLevel;
+
+        public static void SetLogLevel(LogLevel level)
         {
             CurrentLogLevel = level;
 #if UNITY_EDITOR
@@ -31,9 +54,9 @@ namespace com.zibra.liquid.Solver
         {
 #if UNITY_EDITOR
             CurrentLogLevel =
-                (ZibraLiquidBridge.LogLevel)EditorPrefs.GetInt(EditorPrefsKey, (int)ZibraLiquidBridge.LogLevel.Error);
+                (LogLevel)EditorPrefs.GetInt(EditorPrefsKey, (int)LogLevel.Error);
 #else
-            CurrentLogLevel = ZibraLiquidBridge.LogLevel.Error;
+            CurrentLogLevel = LogLevel.Error;
 #endif // UNITY_EDITOR
         }
 
@@ -43,7 +66,7 @@ namespace com.zibra.liquid.Solver
         static void InitializeDebug()
         {
             DebugLogCallbackT callbackDelegate = new DebugLogCallbackT(DebugLogCallback);
-            var settings = new ZibraLiquidBridge.LoggerSettings();
+            var settings = new LoggerSettings();
             settings.PFNCallback = Marshal.GetFunctionPointerForDelegate(callbackDelegate);
             settings.LogLevel = CurrentLogLevel;
             IntPtr settingsPtr = Marshal.AllocHGlobal(Marshal.SizeOf(settings));
@@ -57,23 +80,23 @@ namespace com.zibra.liquid.Solver
         [MonoPInvokeCallback(typeof(DebugLogCallbackT))]
         static void DebugLogCallback(IntPtr request)
         {
-            ZibraLiquidBridge.DebugMessage message = Marshal.PtrToStructure<ZibraLiquidBridge.DebugMessage>(request);
+            DebugMessage message = Marshal.PtrToStructure<DebugMessage>(request);
             string text = Marshal.PtrToStringAnsi(message.Text);
             switch (message.Level)
             {
-            case ZibraLiquidBridge.LogLevel.Verbose:
+            case LogLevel.Verbose:
                 Debug.Log("ZibraLiquid[verbose]: " + text);
                 break;
-            case ZibraLiquidBridge.LogLevel.Info:
+            case LogLevel.Info:
                 Debug.Log("ZibraLiquid: " + text);
                 break;
-            case ZibraLiquidBridge.LogLevel.Warning:
+            case LogLevel.Warning:
                 Debug.LogWarning(text);
                 break;
-            case ZibraLiquidBridge.LogLevel.Performance:
+            case LogLevel.Performance:
                 Debug.LogWarning("ZibraLiquid | Performance Warning:" + text);
                 break;
-            case ZibraLiquidBridge.LogLevel.Error:
+            case LogLevel.Error:
                 Debug.LogError("ZibraLiquid" + text);
                 break;
             default:

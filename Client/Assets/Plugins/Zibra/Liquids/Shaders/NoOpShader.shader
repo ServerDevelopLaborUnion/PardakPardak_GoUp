@@ -12,7 +12,7 @@ Shader "ZibraLiquids/NoOpShader"
             #pragma instancing_options procedural:setup
             #pragma vertex VSMain
             #pragma fragment PSMain
-            #pragma target 3.0
+            #pragma target 3.5
 
             struct VSIn
             {

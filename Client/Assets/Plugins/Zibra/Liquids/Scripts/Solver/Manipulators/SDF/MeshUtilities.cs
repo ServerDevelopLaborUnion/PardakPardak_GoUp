@@ -1,24 +1,31 @@
-#if ZIBRA_LIQUID_PAID_VERSION
+#if ZIBRA_LIQUID_PAID_VERSION && UNITY_EDITOR
 
-using com.zibra.liquid.DataStructures;
-using com.zibra.liquid.Solver;
-using com.zibra.liquid.Utilities;
-using com.zibra.liquid;
-using System;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace com.zibra.liquid.SDFObjects
+namespace com.zibra.liquid.Utilities
 {
+    /// <summary>
+    ///     Helper class with mesh processing utilities.
+    /// </summary>
     public static class MeshUtilities
     {
+#region Public Interface
+        /// <summary>
+        ///     Queries mesh from GameObject.
+        /// </summary>
+        /// <param name="obj">
+        ///     GameObject with mesh to query.
+        /// </param>
+        /// <returns>
+        ///     Either static mesh from Mesh Filter,
+        ///     or (Pro Version only) preprocessed copy of skinned mesh.
+        /// </returns>
         public static Mesh GetMesh(GameObject obj)
         {
             Renderer currentRenderer = obj.GetComponent<Renderer>();
@@ -29,40 +36,137 @@ namespace com.zibra.liquid.SDFObjects
 
                 if (MeshFilter == null)
                 {
-#if UNITY_EDITOR
                     string errorMessage = "MeshFilter absent. Generating SDF requires mesh available.";
                     EditorUtility.DisplayDialog("Zibra Liquid Mesh Error", errorMessage, "Ok");
                     Debug.LogError(errorMessage);
-#endif
                     return null;
                 }
 
                 if (MeshFilter.sharedMesh == null)
                 {
-#if UNITY_EDITOR
                     string errorMessage = "No mesh found on this object. Generating SDF requires mesh available.";
                     EditorUtility.DisplayDialog("Zibra Liquid Mesh Error", errorMessage, "Ok");
                     Debug.LogError(errorMessage);
-#endif
                     return null;
                 }
 
                 return MeshFilter.sharedMesh;
             }
 
-#if UNITY_EDITOR
+#if ZIBRA_LIQUID_PRO_VERSION
+            if (currentRenderer != null && currentRenderer is SkinnedMeshRenderer skinnedMeshRenderer)
+            {
+                var mesh = new Mesh();
+#if UNITY_2020_3_OR_NEWER
+                skinnedMeshRenderer.BakeMesh(mesh, true);
+#else
+                skinnedMeshRenderer.BakeMesh(mesh);
+#endif
+
+                return mesh;
+            }
+#endif
+
             {
                 string errorMessage =
-                    "Unsupported Renderer type. Only MeshRenderer is supported at the moment.";
+                    "Unsupported Renderer type. Only MeshRenderer and SkinnedMeshRenderer are supported at the moment.";
                 EditorUtility.DisplayDialog("Zibra Liquid Mesh Error", errorMessage, "Ok");
                 Debug.LogError(errorMessage);
             }
-#endif
+
             return null;
         }
 
+#if ZIBRA_LIQUID_PRO_VERSION
+        /// <summary>
+        ///     (Pro Version only) Queries meshes for each skinned mesh bone from GameObject.
+        /// </summary>
+        /// <param name="obj">
+        ///     GameObject with skinned mesh to query.
+        /// </param>
+        /// <returns>
+        ///     List of meshes corresponding to each bone in skinned mesh.
+        /// </returns>
+        public static List<Mesh> GetSkinnedMeshBoneMeshes(GameObject obj)
+        {
+            List<Mesh> boneMeshes = new List<Mesh>();
+            List<List<int>> boneTriangles = new List<List<int>>();
+
+            // Get a reference to the mesh
+            var skinnedMeshRenderer = obj.GetComponent<SkinnedMeshRenderer>();
+            int boneCount = skinnedMeshRenderer.bones.Length;
+
+            if (boneCount == 0)
+                return boneMeshes;
+
+            var mesh = skinnedMeshRenderer.sharedMesh;
+
+            for (int i = 0; i < boneCount; i++)
+            {
+                Mesh bmesh = new Mesh();
+                bmesh.SetVertices(mesh.vertices);
+                boneMeshes.Add(bmesh);
+                boneTriangles.Add(new List<int>());
+            }
+
+            var bonesPerVertex = mesh.GetBonesPerVertex();
+            var boneWeights = mesh.GetAllBoneWeights();
+            var boneWeightIndex = 0;
+
+            List<int> VertexBones = new List<int>();
+
+            // Iterate over the vertices
+            for (var vertIndex = 0; vertIndex < mesh.vertexCount; vertIndex++)
+            {
+                var numberOfBonesForThisVertex = bonesPerVertex[vertIndex];
+
+                var currentBoneWeight = boneWeights[boneWeightIndex];
+                VertexBones.Add(currentBoneWeight.boneIndex);
+                boneWeightIndex += numberOfBonesForThisVertex;
+            }
+
+            var triangles = mesh.triangles;
+
+            // Iterate over triangles and add them to respective meshes depending on the bones
+            for (var triangle = 0; triangle < triangles.Length; triangle += 3)
+            {
+                int bone0 = VertexBones[triangles[triangle + 0]];
+                int bone1 = VertexBones[triangles[triangle + 1]];
+                int bone2 = VertexBones[triangles[triangle + 2]];
+
+                for (int i = 0; i < 3; i++)
+                {
+                    boneTriangles[bone0].Add(triangles[triangle + i]);
+                }
+
+                if (bone1 != bone0)
+                    for (int i = 0; i < 3; i++)
+                    {
+                        boneTriangles[bone1].Add(triangles[triangle + i]);
+                    }
+
+                if (bone2 != bone1 && bone2 != bone0)
+                    for (int i = 0; i < 3; i++)
+                    {
+                        boneTriangles[bone2].Add(triangles[triangle + i]);
+                    }
+            }
+
+            for (int i = 0; i < boneCount; i++)
+            {
+                boneMeshes[i].SetTriangles(boneTriangles[i], 0);
+                boneMeshes[i] = ClearBlanks(boneMeshes[i]);
+            }
+
+            return boneMeshes;
+        }
+#endif
+#endregion
+#region Implementation details
+
+#if ZIBRA_LIQUID_PRO_VERSION
         // remove vertices which are not used by the triangles
-        static public Mesh ClearBlanks(Mesh mesh)
+        private static Mesh ClearBlanks(Mesh mesh)
         {
             int[] triangles = mesh.triangles;
             Vector3[] vertices = mesh.vertices;
@@ -94,6 +198,8 @@ namespace com.zibra.liquid.SDFObjects
             mesh.triangles = triangles;
             return mesh;
         }
+#endif
+#endregion
     }
 
 }

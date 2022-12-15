@@ -8,17 +8,18 @@
 
             HLSLPROGRAM
 
-            // Physically based Standard lighting model
             #pragma multi_compile_local __ HDRP
             #pragma multi_compile_local __ CUSTOM_REFLECTION_PROBE
             #pragma multi_compile_local __ VISUALIZE_SDF
             #pragma multi_compile_local __ FLIP_BACKGROUND
             #pragma multi_compile_local __ FLIP_NATIVE_TEXTURES
             #pragma multi_compile_local __ UNDERWATER_RENDER
+            #pragma multi_compile_local __ MULTI_MATERIAL
+            #pragma multi_compile_local __ RAYMARCH_DISABLED
             #pragma instancing_options procedural:setup
             #pragma vertex VSMain
             #pragma fragment PSMain
-            #pragma target 3.0
+            #pragma target 3.5
             #include "UnityCG.cginc"
             #include "UnityStandardBRDF.cginc"
             #include "UnityImageBasedLighting.cginc"
@@ -315,6 +316,7 @@
             
             float RayMarchResolutionDownscale;
 
+#ifndef RAYMARCH_DISABLED
             Texture2D<float4> RayMarchData;
             float4 RayMarchData_TexelSize;
 
@@ -337,7 +339,19 @@
 
             float4 FetchMaterialData(float2 uv)
             {
+#ifndef MULTI_MATERIAL
                 return float4(0, 0, 0, 0);
+#endif
+
+#ifdef FLIP_NATIVE_TEXTURES
+                uv.y = RayMarchResolutionDownscale - uv.y;
+#else
+                if (MaterialData_TexelSize.y < 0)
+                {
+                    uv.y = RayMarchResolutionDownscale - uv.y;
+                }
+#endif
+                return MaterialData.Sample(samplerMaterialData, uv);
             }
 
             //required to work with custom depth formats
@@ -364,7 +378,8 @@
 
                 return path;
             }
-
+#endif
+            
             PSOut PSMain(VSOut input)
             {
                 PSOut output;
@@ -388,11 +403,12 @@
                     discard;
                 }
 #endif
+#ifndef RAYMARCH_DISABLED
                 LightPath path = GetLiquidDepth(pixelCoord.xy);
-                
                 RayDepths = path.depth;
-                Depths = RayDepths;
                 Material = path.material;
+#endif
+                Depths = RayDepths;
                 float3 normal = DecodeDirection(asuint(encodedNormal));
                 float3 worldPos = DepthToWorld(input.uv, liquidDepth);
 
@@ -439,7 +455,11 @@
                     }
                     else
                     {
+#ifndef RAYMARCH_DISABLED
                         background_color = RefractionRay(worldPos, cameraRay, -normal, input.uv, true);
+#else
+                        background_color = RefractionColor;
+#endif
                     }
 
                     float liquidWorldSpaceDepth = length(cameraPos - worldPos);
@@ -476,8 +496,11 @@
                     ////
                     ////compute refracted color
                     ////
-
+#ifndef RAYMARCH_DISABLED
                     incomingLight += (1.0 - fresnel) * RefractionRay(worldPos, cameraRay, normal, input.uv, false);
+#else
+                    incomingLight += (1.0 - fresnel) * RefractionColor;
+#endif
                 }
 
                 output.color = float4(clamp(incomingLight , 0., 10000.0), 1.0);

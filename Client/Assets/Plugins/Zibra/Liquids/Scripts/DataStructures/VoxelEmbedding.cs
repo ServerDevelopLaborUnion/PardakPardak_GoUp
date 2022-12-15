@@ -3,10 +3,13 @@ using UnityEngine;
 
 namespace com.zibra.liquid.DataStructures
 {
+    // C# doesn't know we use it with JSON deserialization
+#pragma warning disable 0649
     [Serializable]
-    public struct VoxelEmbedding
+    internal struct VoxelEmbedding
     {
         public Color32[] embeds;
         public byte[] grid;
     }
+#pragma warning restore 0649
 }

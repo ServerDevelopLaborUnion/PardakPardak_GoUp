@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace com.zibra.liquid.Solver
 {
-    class ZibraLiquidGPUGarbageCollector : MonoBehaviour
+    internal class ZibraLiquidGPUGarbageCollector : MonoBehaviour
     {
-        static bool GarbageCollectorEnabled = false;
-        static List<ComputeBuffer> buffersToClear = new List<ComputeBuffer>();
-        static List<RenderTexture> texturesToClear = new List<RenderTexture>();
-        static List<GraphicsBuffer> graphicsBuffersToClear = new List<GraphicsBuffer>();
-        static List<Texture3D> textures3DToClear = new List<Texture3D>();
+        private static bool GarbageCollectorEnabled = false;
+        private static List<ComputeBuffer> BuffersToClear = new List<ComputeBuffer>();
+        private static List<RenderTexture> TexturesToClear = new List<RenderTexture>();
+        private static List<GraphicsBuffer> GraphicsBuffersToClear = new List<GraphicsBuffer>();
+        private static List<Texture3D> Textures3DToClear = new List<Texture3D>();
         private static void SafeReleaseImmediate(ComputeBuffer obj)
         {
             if (obj != null)
@@ -55,7 +55,7 @@ namespace com.zibra.liquid.Solver
             }
             else
             {
-                buffersToClear.Add(obj);
+                BuffersToClear.Add(obj);
             }
         }
 
@@ -72,7 +72,7 @@ namespace com.zibra.liquid.Solver
             }
             else
             {
-                graphicsBuffersToClear.Add(obj);
+                GraphicsBuffersToClear.Add(obj);
             }
         }
 
@@ -89,7 +89,7 @@ namespace com.zibra.liquid.Solver
             }
             else
             {
-                texturesToClear.Add(obj);
+                TexturesToClear.Add(obj);
             }
         }
 
@@ -106,35 +106,35 @@ namespace com.zibra.liquid.Solver
             }
             else
             {
-                textures3DToClear.Add(obj);
+                Textures3DToClear.Add(obj);
             }
         }
 
-        static void GCUpdate()
+        private static void GCUpdate()
         {
             int isEmpty = ZibraLiquidBridge.GarbageCollect();
             if (isEmpty == 1)
             {
-                for (int i = 0; i < buffersToClear.Count; i++)
+                for (int i = 0; i < BuffersToClear.Count; i++)
                 {
-                    SafeReleaseImmediate(buffersToClear[i]);
+                    SafeReleaseImmediate(BuffersToClear[i]);
                 }
-                for (int i = 0; i < texturesToClear.Count; i++)
+                for (int i = 0; i < TexturesToClear.Count; i++)
                 {
-                    SafeReleaseImmediate(texturesToClear[i]);
+                    SafeReleaseImmediate(TexturesToClear[i]);
                 }
-                for (int i = 0; i < graphicsBuffersToClear.Count; i++)
+                for (int i = 0; i < GraphicsBuffersToClear.Count; i++)
                 {
-                    SafeReleaseImmediate(graphicsBuffersToClear[i]);
+                    SafeReleaseImmediate(GraphicsBuffersToClear[i]);
                 }
-                for (int i = 0; i < textures3DToClear.Count; i++)
+                for (int i = 0; i < Textures3DToClear.Count; i++)
                 {
-                    SafeReleaseImmediate(textures3DToClear[i]);
+                    SafeReleaseImmediate(Textures3DToClear[i]);
                 }
-                buffersToClear.Clear();
-                texturesToClear.Clear();
-                graphicsBuffersToClear.Clear();
-                textures3DToClear.Clear();
+                BuffersToClear.Clear();
+                TexturesToClear.Clear();
+                GraphicsBuffersToClear.Clear();
+                Textures3DToClear.Clear();
 
                 if (GarbageCollectorEnabled)
                 {
@@ -157,7 +157,7 @@ namespace com.zibra.liquid.Solver
         }
 #endif
 
-        static public void GCUpdateWrapper()
+        public static void GCUpdateWrapper()
         {
             if (ZibraLiquidBridge.NeedGarbageCollect())
             {
