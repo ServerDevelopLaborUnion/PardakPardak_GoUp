@@ -26,7 +26,7 @@ public class PlayerOxygen : MonoBehaviour
 
     private void Awake()
     {
-        playerJump = GetComponent<PlayerJump>();
+        playerJump = transform.parent.GetComponent<PlayerJump>();
     }
 
     private void Start()
@@ -46,15 +46,15 @@ public class PlayerOxygen : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("Water"))
+        if(other.CompareTag("Water"))
             InWater = true;
     }
 
-    private void OnCollisionExit(Collision other)
+    private void OnTriggerExit(Collider other)
     {
-        if(other.gameObject.CompareTag("Water"))
+        if(other.CompareTag("Water"))
             InWater = false;
     }
 }
