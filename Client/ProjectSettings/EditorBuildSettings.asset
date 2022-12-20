@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/00.Scenes/IntroDevSeok.unity
+    guid: ec3634022f50d8f4cb5456ff224e1bff
   m_configObjects: {}

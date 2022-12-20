@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
-using static Define;
+using static DEFINE;
 
 public class PlayerInput : MonoBehaviour
 {

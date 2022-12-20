@@ -1,11 +1,20 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 
-public class Define
+public class DEFINE
 {
-    private static Camera _mainCam = null;
-    private static CinemachineVirtualCamera _cmVCam;
+    private static Transform staticCanvas = null;
+    public static Transform StaticCanvas { 
+        get {
+            if(staticCanvas == null)
+                staticCanvas = GameObject.Find("StaticCanvas").transform;
+            return staticCanvas;
+        } 
+    }
 
+    private static Camera _mainCam = null;
     public static Camera MainCam
     {
         get
@@ -17,6 +26,8 @@ public class Define
             return _mainCam;
         }
     }
+
+    private static CinemachineVirtualCamera _cmVCam = null;
     public static CinemachineVirtualCamera VCam
     {
         get
