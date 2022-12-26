@@ -25,7 +25,7 @@ public class ObjectRotator : MonoBehaviour
 
     private Dictionary<Axis, Action> rotateActions = new Dictionary<Axis, Action>();
 
-    private Vector3 rotate = new Vector3();
+    Vector3 rotate = new Vector3();
     private bool stop = false;
     
     private bool onDecreasing = false;
@@ -56,7 +56,7 @@ public class ObjectRotator : MonoBehaviour
         if(stop) return;
 
         rotateActions[axis]?.Invoke();
-        transform.rotation = Quaternion.Euler(rotate);
+        transform.localRotation = Quaternion.Euler(rotate);
     }
 
     public float DoRotate(float target)
