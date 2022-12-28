@@ -36,16 +36,6 @@ public class RotateSecond : MonoBehaviour
         targetPos = target.position;
     }
 
-    private void Start()
-    {
-        onRotating = true;
-            StartCoroutine(Rotate(targetRotate, targetPos, () => {
-                StartCoroutine(Rotate(defaultRotate, defaultPos, () => {
-                    onRotating = false;
-                }));
-            })); 
-    }
-
     private void Update()
     {
         if(!onAttached)
