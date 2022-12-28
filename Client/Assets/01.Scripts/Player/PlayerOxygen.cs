@@ -26,7 +26,7 @@ public class PlayerOxygen : MonoBehaviour
 
     private void Awake()
     {
-        playerJump = transform.parent.GetComponent<PlayerJump>();
+        playerJump = transform.GetComponent<PlayerJump>();
     }
 
     private void Start()
