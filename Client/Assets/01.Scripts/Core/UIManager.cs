@@ -39,6 +39,7 @@ public class UIManager:MonoBehaviour
 
     
     public void SetText(string msg){
+        if(changeTxt) return;
         txt.text = msg;
         changeTxt = true;
     }

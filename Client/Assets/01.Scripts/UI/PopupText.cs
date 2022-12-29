@@ -5,7 +5,7 @@ using UnityEngine;
 public class PopupText : MonoBehaviour
 {
     [SerializeField] List<Desition> decisiones = new List<Desition>();
-    [SerializeField] string message;
+    [SerializeField] string[] message;
     private void Update() 
     {
         bool value = false;
@@ -13,7 +13,7 @@ public class PopupText : MonoBehaviour
             value |= a.ReturnDesition();
             if(!value)
                 return;
-            UIManager.Instance.SetText(message);
+            UIManager.Instance.SetText(message[Random.Range(0,message.Length)]);
         });
     }
 }
