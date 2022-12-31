@@ -13,9 +13,12 @@ public class PlayerInput : MonoBehaviour
 
     public UnityEvent<Vector3> DefaultJump;
 
+    AudioSource chalbakSound;
+
     private void Awake()
     {
         inputCamera = MainCam.transform.GetChild(0).GetComponent<Camera>();
+        chalbakSound = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -34,7 +37,8 @@ public class PlayerInput : MonoBehaviour
             Vector3 mousePos = inputCamera.ScreenToWorldPoint(Input.mousePosition);
             mousePos.z = 0;
             // Debug.Log("Jump Input");
-            OnJumpInput?.Invoke(mousePos);
+            OnJumpInput?.Invoke(mousePos); 
+
         }
     }
 
@@ -46,6 +50,7 @@ public class PlayerInput : MonoBehaviour
             DefaultJump?.Invoke(Vector3.up);
             // rb.AddForce(Vector3.up * 10f, ForceMode.Impulse);
             // OnJumpInput?.Invoke(-transform.right);
+            AudioManager.Instance.PlayAudio("Âû¹Ú", chalbakSound);
         }
     }
 
@@ -59,5 +64,6 @@ public class PlayerInput : MonoBehaviour
     {
         if(other.gameObject.CompareTag("Water"))
             _currentJumpCount++;
+            
     }
 }

@@ -3,9 +3,16 @@ using UnityEngine;
 
 public class BubbleBubble : MonoBehaviour
 {
+    [SerializeField] int maxCount = 5;
     [SerializeField] float delay = 1f;
     [SerializeField] Transform minPos, maxPos;
     [SerializeField] GameObject bubblePrefab = null;
+    private Transform bubble = null;
+
+    private void Awake()
+    {
+        bubble = transform.Find("Bubble");
+    }
 
     private void Start()
     {
@@ -17,7 +24,8 @@ public class BubbleBubble : MonoBehaviour
         while(true)
         {
             yield return new WaitForSeconds(delay);
-            Instantiate(bubblePrefab, GetRandomPos(), Quaternion.identity);
+            if(bubble.childCount < maxCount)
+                Instantiate(bubblePrefab, GetRandomPos(), Quaternion.identity).transform.SetParent(bubble);
         }
     }
 
