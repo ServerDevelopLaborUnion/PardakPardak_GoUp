@@ -64,6 +64,6 @@ public class PlayerInput : MonoBehaviour
     {
         if(other.gameObject.CompareTag("Water"))
             _currentJumpCount++;
-            AudioManager.Instance.PlayAudio("Âû¹Ú", chalbakSound);
+            
     }
 }
