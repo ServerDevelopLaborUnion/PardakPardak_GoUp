@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,11 +10,21 @@ public class IntroUIManager : MonoBehaviour
 {
     [SerializeField] private TMP_Dropdown _resolution;
 
-    public void StartGame() 
+    [SerializeField] private RectTransform _title, _touchToStart, _btns;
+    [SerializeField] private Animator _fishAnimator;
+
+    public void LoadGame() 
     {
-        SceneLoader.Instance.LoadAsync("Player", () => {
-            
-        });
+        SceneLoader.Instance.LoadAsync("Player 1");
+    }
+
+    public void StartGame()
+    {
+        _title.DOAnchorPosY(0 + _title.rect.height, 0.4f);
+        _btns.DOAnchorPosY(0 + _btns.rect.height, 0.4f);
+        _touchToStart.DOAnchorPosY(0 - _touchToStart.rect.height, 0.4f);
+        _fishAnimator.SetTrigger("Start");
+        return;
     }
 
     public void ChangeResolution(int idx)

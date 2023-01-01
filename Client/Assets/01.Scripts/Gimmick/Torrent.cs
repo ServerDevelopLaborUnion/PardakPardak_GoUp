@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class Torrent : MonoBehaviour
 {
-    [SerializeField] Vector3 dir = new Vector3();
+    public float speed;
+
+    [SerializeField] Transform dirTrm = null;
     private Rigidbody playerRb = null;
     private bool onTorrenting = false;
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if(onTorrenting)
-            playerRb.velocity = dir;
+        if (onTorrenting)
+            playerRb.velocity = dirTrm.forward * speed;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -21,12 +23,17 @@ public class Torrent : MonoBehaviour
             if(playerRb == null)
                 playerRb = other.GetComponent<Rigidbody>();
             onTorrenting = true;
+            playerRb.useGravity = false;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if(other.CompareTag("Player"))
+        if (other.CompareTag("Player"))
+        {
             onTorrenting = false;
+            playerRb.useGravity = true;
+            playerRb.velocity = Vector3.zero;
+        }
     }
 }
