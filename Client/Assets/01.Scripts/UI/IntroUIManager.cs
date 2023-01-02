@@ -15,7 +15,7 @@ public class IntroUIManager : MonoBehaviour
 
     public void LoadGame() 
     {
-        SceneLoader.Instance.LoadAsync("Player 1");
+        SceneLoader.Instance.LoadAsync("Tutorial");
     }
 
     public void StartGame()
