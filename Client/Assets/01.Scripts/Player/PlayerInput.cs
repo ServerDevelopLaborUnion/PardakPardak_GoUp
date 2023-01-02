@@ -13,11 +13,13 @@ public class PlayerInput : MonoBehaviour
 
     public UnityEvent<Vector3> DefaultJump;
 
+    private PlayerOxygen oxygen= null;
     AudioSource chalbakSound;
 
     private void Awake()
     {
         inputCamera = MainCam.transform.GetChild(0).GetComponent<Camera>();
+        oxygen = GetComponent<PlayerOxygen>();
         chalbakSound = GetComponent<AudioSource>();
     }
 
@@ -47,10 +49,11 @@ public class PlayerInput : MonoBehaviour
         if(other.gameObject.CompareTag("Ground"))
         {
             _currentJumpCount = 0;
-            DefaultJump?.Invoke(Vector3.up);
+            if(!oxygen.InWater)
+                DefaultJump?.Invoke(Vector3.up);
             // rb.AddForce(Vector3.up * 10f, ForceMode.Impulse);
             // OnJumpInput?.Invoke(-transform.right);
-            AudioManager.Instance.PlayAudio("Вы№Ъ", chalbakSound);
+            AudioManager.Instance.PlayAudio("пїЅпїЅпїЅпїЅ", chalbakSound);
         }
     }
 
