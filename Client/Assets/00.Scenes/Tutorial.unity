@@ -1277,7 +1277,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "\uD074\uB9AD\uD55C \uBC29\uD5A5\uC758 \uBC18\uB300 \uBC29\uD5A5\uC73C\uB85C
-    \uC810\uD504\uD569\uB2C8\uB2E4."
+    \uC810\uD504\uD569\uB2C8\uB2E4.\n\uD2B8\uB9AC\uD50C \uC810\uD504\uAC00 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1b3b865ecec095443a0f98f8e4801a15, type: 2}
   m_sharedMaterial: {fileID: 1071966876366287233, guid: 1b3b865ecec095443a0f98f8e4801a15, type: 2}
@@ -46928,7 +46928,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dbd289eed2db9674aa4bea1bace16d5e, type: 2}
+  - {fileID: 2100000, guid: 7559b7ff6d2f1134981c9216aae0ff27, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
