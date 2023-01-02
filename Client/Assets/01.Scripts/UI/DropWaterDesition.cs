@@ -12,10 +12,10 @@ public class DropWaterDesition : Desition
         }
         return false;
     }
-    private void OnCollisionEnter(Collision other) {
+    private void OnTriggerEnter(Collider other) {
         isBool = other.gameObject.name == "Player";
     }
-    private void OnCollisionExit(Collision other) {
+    private void OnTriggerExit(Collider other) {
         if(other.gameObject.name == "Player") isBool = false;
     }
 }
