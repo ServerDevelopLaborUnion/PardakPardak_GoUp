@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/00.Scenes/IntroDevSeok.unity
     guid: ec3634022f50d8f4cb5456ff224e1bff
   - enabled: 1
-    path: Assets/00.Scenes/Player.unity
-    guid: afbd82bd0f5828046a57eefae5cede55
+    path: Assets/00.Scenes/Tutorial.unity
+    guid: 256abefe289722a4f941ab72ae4a11d8
+  - enabled: 1
+    path: Assets/00.Scenes/PlayerTest1.unity
+    guid: ab687fa005aed89428f76bec5920a213
   m_configObjects: {}
