@@ -53,7 +53,7 @@ public class PlayerInput : MonoBehaviour
                 DefaultJump?.Invoke(Vector3.up);
             // rb.AddForce(Vector3.up * 10f, ForceMode.Impulse);
             // OnJumpInput?.Invoke(-transform.right);
-            AudioManager.Instance.PlayAudio("����", chalbakSound);
+            AudioManager.Instance.PlayAudio("찰박", chalbakSound);
         }
     }
 

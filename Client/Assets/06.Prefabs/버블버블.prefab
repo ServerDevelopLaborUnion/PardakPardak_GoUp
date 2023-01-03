@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 936446632376967682}
   m_Layer: 0
   m_Name: "\uBC84\uBE14\uBC84\uBE14"
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -97,7 +97,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fb3e14754cdfa04a92cb661c906ad9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  force: 3
+  force: 15
+  destroyOnPush: 1
 --- !u!135 &936446632376967682
 SphereCollider:
   m_ObjectHideFlags: 0
