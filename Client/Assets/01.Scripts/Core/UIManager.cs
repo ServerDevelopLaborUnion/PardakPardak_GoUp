@@ -27,7 +27,7 @@ public class UIManager:MonoBehaviour
         if(changeTxt){
             timer += Time.deltaTime;
             txtmat.SetFloat(ShaderUtilities.ID_FaceDilate, Mathf.Lerp(-1f,0,timer*2));
-            Debug.Log( Mathf.Lerp(-1f,0,timer*2));
+
             if(timer>2.3f){
                 txt.text = "";
                 timer = 0;

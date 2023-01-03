@@ -32,7 +32,6 @@ public class MoveSide : MonoBehaviour
             timer += Time.deltaTime;
             pos = Vector3.Lerp(startPos, targetPos, timer / duration);
             transform.position = pos;
-            Debug.Log(pos);
 
             yield return null;
         }
