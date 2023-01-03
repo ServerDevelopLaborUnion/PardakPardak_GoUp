@@ -1,6 +1,11 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Client/Assets/DevSeok/CM vcam1.controller.meta
 guid: 177c1572426c5fc4ca3f7083e908c569
 NativeFormatImporter:
+========
+guid: 78edc3bce3b030a43b34c46ea2fc2338
+PrefabImporter:
+>>>>>>>> main:Client/Assets/06.Prefabs/Soup.prefab.meta
   externalObjects: {}
   mainObjectFileID: 9100000
   userData: 
