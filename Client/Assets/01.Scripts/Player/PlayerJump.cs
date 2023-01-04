@@ -35,6 +35,7 @@ public class PlayerJump : MonoBehaviour
 
     public void DefaultJump(Vector3 dir)
     {
+        if(_anim != null)_anim.SetTrigger("Jump");
         _anim.SetTrigger("Jump");
         _rigid.velocity = Vector3.zero;
         _rigid.AddForce(dir.normalized * JumpPower, ForceMode.Impulse);
@@ -43,8 +44,7 @@ public class PlayerJump : MonoBehaviour
     public void CommonJump(Vector3 mousePos)
     {
         // if(mousePos.y >= transform.position.y) return;
-
-        _anim.SetTrigger("Jump");
+        if(_anim != null)_anim.SetTrigger("Jump");
         Vector3 dir = (transform.position - mousePos).normalized;
         _rigid.velocity = Vector3.zero;
         _rigid.AddForce(dir * _jumpPower, ForceMode.Impulse);
