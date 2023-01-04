@@ -13,6 +13,11 @@ public class IntroUIManager : MonoBehaviour
     [SerializeField] private RectTransform _title, _touchToStart, _btns;
     [SerializeField] private Animator _fishAnimator;
 
+    [SerializeField] private TextMeshProUGUI _stopCancelTxt;
+    [SerializeField] private string[] _cTexts;
+
+    private int _cancelCnt = 0;
+
     public void LoadGame() 
     {
         SceneLoader.Instance.LoadAsync("Tutorial");
@@ -24,6 +29,15 @@ public class IntroUIManager : MonoBehaviour
         _btns.DOAnchorPosY(0 + _btns.rect.height, 0.4f);
         _touchToStart.DOAnchorPosY(0 - _touchToStart.rect.height, 0.4f);
         _fishAnimator.SetTrigger("Start");
+        _cancelCnt++;
+
+        if(_cancelCnt % 3 == 0) 
+        {
+            _stopCancelTxt.text = _cTexts[(_cancelCnt / 3 - 1) < _cTexts.Length - 1 ? _cancelCnt/3 - 1 : _cTexts.Length - 1];
+            Sequence seq = DOTween.Sequence();
+            seq.Append(_stopCancelTxt.DOFade(1, 0.45f));
+            seq.Append(_stopCancelTxt.DOFade(0, 0.1f));
+        }
         return;
     }
 
