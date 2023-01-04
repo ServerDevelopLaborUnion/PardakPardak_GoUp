@@ -36,7 +36,7 @@ public class PlayerJump : MonoBehaviour
     public void DefaultJump(Vector3 dir)
     {
         if(_anim != null)_anim.SetTrigger("Jump");
-        _anim.SetTrigger("Jump");
+        // _anim.SetTrigger("Jump");
         _rigid.velocity = Vector3.zero;
         _rigid.AddForce(dir.normalized * JumpPower, ForceMode.Impulse);
     }

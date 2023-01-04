@@ -5,6 +5,6 @@ public class WaterDrop : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {        
         if(other.CompareTag("Ground"))
-            Destroy(gameObject);
+            Destroy(transform.root.gameObject);
     }
 }
