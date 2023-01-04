@@ -57,15 +57,15 @@ public class PlayerInput : MonoBehaviour
         }
     }
 
-    private void OnCollisionStay(Collision other)
+    private void OnTriggerStay(Collider other)
     {
-        if(other.gameObject.CompareTag("Water"))
+        if(other.CompareTag("Water"))
             _currentJumpCount = 0;
     }
 
-    private void OnCollisionExit(Collision other)
+    private void OnTriggerExit(Collider other)
     {
-        if(other.gameObject.CompareTag("Water"))
+        if(other.CompareTag("Water"))
             _currentJumpCount++;
             
     }
