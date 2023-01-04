@@ -13,6 +13,7 @@ public class PlayerJump : MonoBehaviour
     public float JumpPower { get => _jumpPower; set => _jumpPower = Mathf.Clamp(value, _minJumpPower, DefaultJumpPower); }
 
     private Rigidbody _rigid = null;
+    private Animator _anim = null;
     // [Space(10f)]
     // [SerializeField] private Vector3 _minClamp;
     // [SerializeField] private Vector3 _maxClamp;
@@ -20,6 +21,7 @@ public class PlayerJump : MonoBehaviour
     private void Awake()
     {
         _rigid = GetComponent<Rigidbody>();
+        _anim = GetComponentInChildren<Animator>();
     }
 
     // private void FixedUpdate()
@@ -33,6 +35,7 @@ public class PlayerJump : MonoBehaviour
 
     public void DefaultJump(Vector3 dir)
     {
+        _anim.SetTrigger("Jump");
         _rigid.velocity = Vector3.zero;
         _rigid.AddForce(dir.normalized * JumpPower, ForceMode.Impulse);
     }
@@ -41,6 +44,7 @@ public class PlayerJump : MonoBehaviour
     {
         // if(mousePos.y >= transform.position.y) return;
 
+        _anim.SetTrigger("Jump");
         Vector3 dir = (transform.position - mousePos).normalized;
         _rigid.velocity = Vector3.zero;
         _rigid.AddForce(dir * _jumpPower, ForceMode.Impulse);
