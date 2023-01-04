@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Client/Assets/DevSeok/tutocvmove.anim.meta
+guid: d934bd42dc6a7c741b211cd170211639
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+========
+guid: e8de929c93a61fa45b10b926bc81bb33
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+>>>>>>>> main:Client/Assets/03.Materials/soupPot.mat.meta
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

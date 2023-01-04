@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerOxygen : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class PlayerOxygen : MonoBehaviour
         set {
             currentOxygen = value;
             playerJump.JumpPower = currentOxygen / _maxOxygen * playerJump.DefaultJumpPower;
+            if(slider != null) slider.value = currentOxygen;
         }
     }
 
@@ -23,6 +25,7 @@ public class PlayerOxygen : MonoBehaviour
     [SerializeField] private float _decreaseDelay = 0.5f;
 
     private PlayerJump playerJump = null;
+    [SerializeField] private Slider slider;
 
     private void Awake()
     {

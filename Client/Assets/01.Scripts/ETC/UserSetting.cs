@@ -10,7 +10,7 @@ public class UserSetting : Data
     public override void Generate()
     {
         this.resolution = new Vector2Int(1920, 1080);
-        this.Volume = 0.5f;
+        this.Volume = 0f;
     }
 
     public override bool IsNull()
