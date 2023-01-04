@@ -8,7 +8,7 @@ public class EndTutorial : MonoBehaviour
     {
         if(other.gameObject.CompareTag("Player"))
         {
-            Destroy(other);
+            Destroy(other.gameObject);
             DEFINE.VCam.m_Follow = null;
             cameraAnimator.enabled = true;
         }

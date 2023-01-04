@@ -13,7 +13,7 @@ public class PlayerOxygen : MonoBehaviour
         set {
             currentOxygen = value;
             playerJump.JumpPower = currentOxygen / _maxOxygen * playerJump.DefaultJumpPower;
-            if(slider != null) slider.value = currentOxygen;
+            if(slider != null) slider.value = currentOxygen / _maxOxygen;
         }
     }
 
