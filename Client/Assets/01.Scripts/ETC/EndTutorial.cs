@@ -10,7 +10,7 @@ public class EndTutorial : MonoBehaviour
         {
             Destroy(other);
             DEFINE.VCam.m_Follow = null;
-            cameraAnimator.SetTrigger("EndTutorial");
+            cameraAnimator.enabled = true;
         }
     }
 }
