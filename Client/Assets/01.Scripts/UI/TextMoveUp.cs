@@ -12,7 +12,8 @@ public class TextMoveUp : MonoBehaviour
 
     private void Update() {
         
-        MoveUp();
+        if(player != null)
+            MoveUp();
     }
     private void MoveUp(){
 
