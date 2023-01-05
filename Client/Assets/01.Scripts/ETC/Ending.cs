@@ -14,13 +14,16 @@ public class Ending : MonoBehaviour
     [SerializeField] Button Restart;
     [SerializeField] Button GotoMenu;
     [SerializeField] TextMeshProUGUI text;
+    [SerializeField] AudioSource audioSource;
 
     public void StartEnding(){
         StartCoroutine(ShowEnding());
     }
     IEnumerator ShowEnding(){
         image.color = Color.black;
-        yield return new WaitForSeconds(2f);
+        AudioManager.Instance.PlayAudio("칼소리",audioSource);
+        yield return new WaitForSeconds(2.5f);
+        AudioManager.Instance.PlayAudio("보글보글",audioSource);
         firstCm.Priority = 0;
         secondCm.Priority = 10;
         Sequence seq = DOTween.Sequence();

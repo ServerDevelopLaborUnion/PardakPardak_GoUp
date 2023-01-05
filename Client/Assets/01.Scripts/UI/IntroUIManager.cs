@@ -23,6 +23,14 @@ public class IntroUIManager : MonoBehaviour
         SceneLoader.Instance.LoadAsync("Tutorial");
     }
 
+    public void QuitGame() 
+    { 
+        Image image = DEFINE.StaticCanvas.Find("LoadingPanel").GetComponent<Image>();
+        image.gameObject.SetActive(true);
+        image.color = new Color(0, 0, 0, 0);
+        image.DOFade(1f, 0.6f).OnComplete(() => Application.Quit());
+    }
+
     public void StartGame()
     {
         _title.DOAnchorPosY(0 + _title.rect.height, 0.4f);
