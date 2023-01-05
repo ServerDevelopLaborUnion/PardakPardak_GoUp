@@ -19,7 +19,7 @@ public class TSave : MonoBehaviour
                 {
                     if(Input.GetKeyDown(KeyCode.Space))
                         transform.position = savePos.position;
-                    else if(Input.GetKeyDown(KeyCode.Escape))
+                    else if(Input.GetKeyDown(KeyCode.P))
                         savePos.position = transform.position;
                 }
             }
