@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,6 +30,22 @@ public class IntroUIManager : MonoBehaviour
         image.gameObject.SetActive(true);
         image.color = new Color(0, 0, 0, 0);
         image.DOFade(1f, 0.6f).OnComplete(() => Application.Quit());
+    }
+
+    public void SkipTutorial()
+    {
+        Image image = DEFINE.StaticCanvas.Find("LoadingPanel").GetComponent<Image>();
+        image.gameObject.SetActive(true);
+        image.color = new Color(0, 0, 0, 0);
+        image.DOFade(1f, 0.4f).OnComplete(() => SceneLoader.Instance.LoadAsync("InGame"));
+    }
+
+    public void GotoMain() 
+    {
+        Image image = DEFINE.StaticCanvas.Find("LoadingPanel").GetComponent<Image>();
+        image.gameObject.SetActive(true);
+        image.color = new Color(0, 0, 0, 0);
+        image.DOFade(1f, 0.4f).OnComplete(() => SceneLoader.Instance.LoadAsync("Intro"));
     }
 
     public void StartGame()
