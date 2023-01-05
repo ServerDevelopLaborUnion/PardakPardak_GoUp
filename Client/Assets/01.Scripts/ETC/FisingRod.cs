@@ -20,8 +20,6 @@ public class FisingRod : MonoBehaviour
     private void OnTriggerEnter(Collider other) {
         if(other.name =="Player"&&bite == false){
             rigid = other.GetComponent<Rigidbody>();
-            Animator playerAnim = other.GetComponentInChildren<Animator>();
-            playerAnim.SetTrigger("RollBack");
             rigid.useGravity = false;
             rigid.velocity = Vector3.zero;
             cmCam.Priority =20;
