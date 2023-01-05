@@ -63,12 +63,6 @@ public class PlayerInput : MonoBehaviour
             _currentJumpCount = 0;
     }
 
-    private void OnCollisionExit(Collision other)
-    {
-        if(other.gameObject.CompareTag("Ground"))
-            _currentJumpCount++;
-    }
-
     private void OnTriggerStay(Collider other)
     {
         if(other.CompareTag("Water"))
