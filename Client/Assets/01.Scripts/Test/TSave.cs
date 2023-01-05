@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TSave : MonoBehaviour
@@ -14,9 +12,17 @@ public class TSave : MonoBehaviour
                     transform.position = savePos.position;
 
         if(Input.GetKey(KeyCode.LeftAlt))
+        {
             if(Input.GetKey(KeyCode.LeftShift))
+            {
                 if(Input.GetKey(KeyCode.LeftControl))
+                {
                     if(Input.GetKeyDown(KeyCode.Space))
+                        transform.position = savePos.position;
+                    else if(Input.GetKeyDown(KeyCode.Escape))
                         savePos.position = transform.position;
+                }
+            }
+        }
     }
 }
