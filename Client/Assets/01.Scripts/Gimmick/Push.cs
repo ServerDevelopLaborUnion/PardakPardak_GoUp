@@ -21,7 +21,7 @@ public class Push : MonoBehaviour
         rb.AddForce(dir * force, ForceMode.Impulse);
 
         if(destroyOnPush){
-            Destroy(transform);
+            Destroy(gameObject);
         }
     }
 }
