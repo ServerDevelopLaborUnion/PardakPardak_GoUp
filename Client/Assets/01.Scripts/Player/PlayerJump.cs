@@ -24,14 +24,12 @@ public class PlayerJump : MonoBehaviour
         _anim = GetComponentInChildren<Animator>();
     }
 
-    // private void FixedUpdate()
-    // {
-    //     _rigid.velocity = new Vector3(
-    //         Mathf.Clamp(_rigid.velocity.x, _minClamp.x, _maxClamp.x),
-    //         Mathf.Clamp(_rigid.velocity.y, float.MinValue, _maxClamp.y),
-    //         Mathf.Clamp(_rigid.velocity.z, _minClamp.z, _maxClamp.z)
-    //     );
-    // }
+    private void Update()
+    {
+        // _rigid.angularVelocity = new (0, 0, _rigid.angularVelocity.z);
+        // transform.rotation = Quaternion.Euler(0, 0, transform.eulerAngles.z);
+        _rigid.inertiaTensorRotation = Quaternion.identity;
+    }
 
     public void DefaultJump(Vector3 dir)
     {
