@@ -37,7 +37,7 @@ public class FisingRod : MonoBehaviour
         StartCoroutine(TurnEndingScene());
     }
     IEnumerator TurnEndingScene(){
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.8f);
         SceneLoader.Instance.LoadAsync("Ending");
     }
 }

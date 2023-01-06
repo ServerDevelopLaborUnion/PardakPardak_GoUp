@@ -26,6 +26,7 @@ public class PlayerInput : MonoBehaviour
     private void Update()
     {
         GetJumpInput();
+
     }
 
     private void GetJumpInput()

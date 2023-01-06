@@ -2709,6 +2709,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b3e942890be48dc4da35fd0597ea9f02, type: 3}
   - {fileID: 8300000, guid: 1581c1e57ba86db4bbf5eeb9e69be593, type: 3}
   - {fileID: 8300000, guid: 9c011d0b431916a499661af0f62abf26, type: 3}
+  - {fileID: 8300000, guid: f92ded9b6fe15b44db3d6bd307ac485a, type: 3}
+  - {fileID: 8300000, guid: 6034a5598ae6e69429446f16cd575a38, type: 3}
+  - {fileID: 8300000, guid: 7211cdf0cbc1d8143ba1fb250db3657b, type: 3}
   bgmPlayer: {fileID: 0}
   systemPlayer: {fileID: 0}
 --- !u!1 &1167989919
